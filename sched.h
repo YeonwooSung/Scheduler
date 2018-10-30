@@ -10,10 +10,10 @@
 #include <sys/wait.h>
 #include <string.h>
 
-typedef struct process_control_list {
+typedef struct process_control_block {
     pid_t pid;
-    struct process_control_list *prev;
-    struct process_control_list *next;
-} List;
+    struct process_control_block *prev;
+    struct process_control_block *next;
+} PCB;
 
 #endif
