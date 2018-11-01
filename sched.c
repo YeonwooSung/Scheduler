@@ -2,6 +2,13 @@
 
 #define PCB_STRUCT_SIZE sizeof(PCB)
 
+/**
+ * The aim of this function is to create the child process and add the process information to the process control block.
+ *
+ * @param config_file the file name of the config file
+ * @param plist the pointer that points to the linked list of the process control block.
+ * @return the pointer that points to the last process control block
+ */
 PCB *createProcesses(char *config_file, PCB *plist) {
     FILE *fp = fopen(config_file, "r");
     char *line = NULL;
