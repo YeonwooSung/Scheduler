@@ -42,19 +42,26 @@ int main(int argc, char **argv) {
     if (argc < 2) {
         printf("Usage: sched config_file ...");
     } else {
-        PCB *plist = NULL; // The linked list that will store the process id of each process.
+        PCB *pcb = NULL; // The linked list that will store the process id of each process.
 
         int i;
         for (i = 0; i < argc; i++) {
-            createProcesses(argv[i], plist);
+            pcb = createProcesses(argv[i], pcb);
         }
 
         /*
          * If the process control list is null, that means that there are no process that the scheduler should manage.
          * Therefore, the scheduler should be terminated, as long as there is no process to manage.
          */
-        if (plist == NULL) {
+        if (pcb == NULL) {
             exit(0);
+        }
+
+        /**
+         * This part will only be run by the parent process.
+         */
+        if (pcb->pid != 0) {
+            //
         }
     }
 

@@ -11,6 +11,7 @@
 #include <string.h>
 
 typedef struct process_control_block {
+    char priority;
     pid_t pid;
     struct process_control_block *prev;
     struct process_control_block *next;
