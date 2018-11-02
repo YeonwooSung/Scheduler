@@ -136,8 +136,9 @@ int main(int argc, char **argv) {
         PCB *pcb = NULL; // The linked list that will store the process id of each process.
 
         int i;
-        for (i = 0; i < argc; i++) {
+        for (i = 1; i < argc; i++) {
             pcb = createProcesses(argv[i], pcb);
+            printf("%d\n", i);
         }
 
         /*
