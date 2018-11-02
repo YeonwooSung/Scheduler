@@ -110,7 +110,7 @@ PCB *createProcesses(char *config_file, PCB *plist) {
         } else {
             //TODO
 
-            int ret = execv(str[1], NULL);
+            int ret = execl(str[1], str[1], str[2], str[3], str[4], NULL);
 
             //check if the execv fails
             if (ret == -1) {
