@@ -11,13 +11,15 @@
  * @return the 2D pointer, which is a string array that stores the splited strings
  */
 char **split(char *str, const char del, size_t *counter) {
-    char **result = 0;
-    char *tmp = str;
+    char **strArr = 0;
     size_t count = 0;
+    char *tmp = str;
     char *last_comma = 0;
-    char delim[2] = {del, 0};
+    char delim[2];
+    delim[0] = del;
+    delim[1] = 0;
 
-    /* Count the number of delimiters. */
+    /* Count how many elements will be extracted. */
     while (*tmp) {
         if (del == *tmp) {
             count++;
@@ -26,28 +28,29 @@ char **split(char *str, const char del, size_t *counter) {
         tmp++;
     }
 
-    /* Add space for the trailing token. */
+    /* Add space for trailing token. */
     count += last_comma < (str + strlen(str) - 1);
 
-    /* Add a space for terminating null string so caller knows where the list of returned strings ends. */
-    count += 1;
+    /* Add space for terminating null string so caller
+       knows where the list of returned strings ends. */
+    count++;
 
     *counter = count;
 
-    result = (char **) malloc(sizeof(char *) * count);
+    strArr = malloc(sizeof(char *) * count);
 
-    if (result) {
-        unsigned idx = 0;
+    if (strArr) {
+        size_t idx = 0;
         char *token = strtok(str, delim);
 
         while (token) {
-            *(result + idx) = strdup(token); //use the strdup() to copy the token string
+            *(strArr + idx++) = strdup(token);
             token = strtok(0, delim);
         }
-        *(result + idx) = 0;
+        *(strArr + idx) = 0;
     }
 
-    return result;
+    return strArr;
 }
 
 /**
@@ -81,11 +84,13 @@ PCB *createProcesses(char *config_file, PCB *plist) {
 
     if (fp == NULL) {
         perror("Error opening file");
+        return NULL;
     }
 
-    int val;
+    int read;
+    size_t len = 0;
 
-    while ((val = fscanf(fp, "%[^\n]", line)) > 0) { // reads text until newline
+    while ((read = getline(&line, &len, fp)) != -1) {// reads text until newline
         size_t counter = 0; //to count the number of splited strings
 
         char **str = split(line, ' ', &counter); //split the read line with the whitespace.
@@ -107,7 +112,6 @@ PCB *createProcesses(char *config_file, PCB *plist) {
             newProcess->priority = atoi(str[0]);
 
             plist = newProcess;
-            printf("%d, %s\n", pid, str[1]);
         } else {
             //TODO
 
@@ -118,8 +122,6 @@ PCB *createProcesses(char *config_file, PCB *plist) {
                 fprintf(stderr, "Failed to execute the process %s\n", str[1]);
             }
         }
-
-        printf("(createProcess) pid: %d\n", pid);
 
         freeStrings(str, counter); //free the splited strings (except the file path name)
         free(str);
@@ -140,7 +142,6 @@ int main(int argc, char **argv) {
         int i;
         for (i = 1; i < argc; i++) {
             pcb = createProcesses(argv[i], pcb);
-            printf("%d\n", i);
         }
 
         /*
@@ -155,7 +156,7 @@ int main(int argc, char **argv) {
          * This part will only be run by the parent process.
          */
         if (pcb->pid != 0) {
-            printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
+            printf("pid: %d\npath: %s\n", pcb->pid, pcb->pathName);
         }
     }
 
