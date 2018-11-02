@@ -19,7 +19,7 @@ char **split(char *str, const char del, size_t *counter) {
     delim[0] = del;
     delim[1] = 0;
 
-    /* Count how many elements will be extracted. */
+    /* Count the number of elements that will be extracted. */
     while (*tmp) {
         if (del == *tmp) {
             count++;
@@ -28,11 +28,13 @@ char **split(char *str, const char del, size_t *counter) {
         tmp++;
     }
 
-    /* Add space for trailing token. */
+    /* Add space for the trailing token. */
     count += last_comma < (str + strlen(str) - 1);
 
-    /* Add space for terminating null string so caller
-       knows where the list of returned strings ends. */
+    /* 
+     * Add space for terminating null string so caller
+     * knows where the list of returned strings ends.
+     */
     count++;
 
     *counter = count;
