@@ -26,13 +26,13 @@ char **split(char *str, const char del, size_t *counter) {
         tmp++;
     }
 
-    *counter = count;
-
     /* Add space for the trailing token. */
     count += last_comma < (str + strlen(str) - 1);
 
     /* Add a space for terminating null string so caller knows where the list of returned strings ends. */
     count += 1;
+
+    *counter = count;
 
     result = (char **) malloc(sizeof(char *) * count);
 
@@ -108,18 +108,27 @@ PCB *createProcesses(char *config_file, PCB *plist) {
 
             plist = newProcess;
         } else {
-            fclose(fp);
-            //TODO execute the process
+            //TODO
+
+            int ret = execv(str[1], NULL);
+
+            //check if the execv fails
+            if (ret == -1) {
+                fprintf(stderr, "Failed to execute the process %s\n", str[1]);
+            }
         }
 
         freeStrings(str, counter); //free the splited strings (except the file path name)
+        free(str);
     }
 
     fclose(fp);
     return plist;
 }
 
+/* The sched is a simple process scheduler that runs on the user mode. */
 int main(int argc, char **argv) {
+    //it requires at least one command line argument, which should be the file path name of the config file.
     if (argc < 2) {
         printf("Usage: sched config_file ...");
     } else {
@@ -142,7 +151,7 @@ int main(int argc, char **argv) {
          * This part will only be run by the parent process.
          */
         if (pcb->pid != 0) {
-            //
+            //TODO
         }
     }
 
