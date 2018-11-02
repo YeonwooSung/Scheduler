@@ -151,9 +151,7 @@ int main(int argc, char **argv) {
          * This part will only be run by the parent process.
          */
         if (pcb->pid != 0) {
-            printf("Parent here.\n");
-            kill(pcb->pid, SIGCONT);
-            usleep(500000);
+            printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
         }
     }
 
