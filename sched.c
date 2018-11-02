@@ -7,12 +7,13 @@
  *
  * @param str the target string that should be splited
  * @param del the delimiter
+ * @param counter to count the number of splited strings
  * @return the 2D pointer, which is a string array that stores the splited strings
  */
-char **split(char *str, const char del) {
+char **split(char *str, const char del, size_t *counter) {
     char **result = 0;
-    size_t count = 0;
     char *tmp = str;
+    size_t count = 0;
     char *last_comma = 0;
     char delim[2] = {del, 0};
 
@@ -24,6 +25,8 @@ char **split(char *str, const char del) {
         }
         tmp++;
     }
+
+    *counter = count;
 
     /* Add space for the trailing token. */
     count += last_comma < (str + strlen(str) - 1);
@@ -48,6 +51,24 @@ char **split(char *str, const char del) {
 }
 
 /**
+ * The aim of this function is to free the strings in the string array.
+ * It will free all strings except strArr[1], which is the file path name of the executable file of the child process.
+ *
+ * @param strArr the string array that contains the splited string, which should be freed
+ * @param counter the number of string elements that the string array has
+ */
+void freeStrings(char **strArr, size_t counter) {
+    free(strArr[0]);
+
+    size_t count = 2;
+
+    while (counter != count) {
+        free(strArr[count]);
+        count += 1;
+    }
+}
+
+/**
  * The aim of this function is to create the child process and add the process information to the process control block.
  *
  * @param config_file the file name of the config file
@@ -65,7 +86,9 @@ PCB *createProcesses(char *config_file, PCB *plist) {
     int val;
 
     while ((val = fscanf(fp, "%[^\n]", line)) > 0) { // reads text until newline
-        char **str = split(line, ' '); //split the read line with the whitespace.
+        size_t counter = 0; //to count the number of splited strings
+
+        char **str = split(line, ' ', &counter); //split the read line with the whitespace.
 
         pid_t pid = fork();
 
@@ -81,6 +104,7 @@ PCB *createProcesses(char *config_file, PCB *plist) {
             newProcess->next = NULL;
 
             newProcess->pathName = str[1];
+            newProcess->priority = atoi(str[0]);
 
             plist = newProcess;
         } else {
@@ -88,7 +112,7 @@ PCB *createProcesses(char *config_file, PCB *plist) {
             //TODO execute the process
         }
 
-        //TODO free the splited string -> strdup (except str[1])
+        freeStrings(str, counter); //free the splited strings (except the file path name)
     }
 
     fclose(fp);
