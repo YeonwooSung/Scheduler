@@ -144,10 +144,15 @@ int main(int argc, char **argv) {
          * Therefore, the scheduler should be terminated, as long as there is no process to manage.
          */
         if (pcb == NULL) {
-            exit(0);
+            //exit(0);
         }
 
-        printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
+        /**
+         * This part will only be run by the parent process.
+         */
+        if (pcb->pid != 0) {
+            printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
+        }
     }
 
     return 1;
