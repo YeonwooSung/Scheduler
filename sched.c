@@ -97,7 +97,7 @@ PCB *createProcesses(char *config_file, PCB *plist) {
         } else if (pid > 0) {
             kill(pid, SIGSTOP); //send the STOP signal to the corresponding process
 
-            PCB *newProcess = (PCB *)malloc(PCB_STRUCT_SIZE);
+            PCB *newProcess = (PCB *) malloc(PCB_STRUCT_SIZE);
 
             newProcess->prev = plist;
             newProcess->pid = pid;
@@ -118,6 +118,8 @@ PCB *createProcesses(char *config_file, PCB *plist) {
                 fprintf(stderr, "Failed to execute the process %s\n", str[1]);
             }
         }
+
+        printf("(createProcess) pid: %d\n", pid);
 
         freeStrings(str, counter); //free the splited strings (except the file path name)
         free(str);
