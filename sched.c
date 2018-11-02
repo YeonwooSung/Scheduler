@@ -143,15 +143,13 @@ int main(int argc, char **argv) {
          * If the process control list is null, that means that there are no process that the scheduler should manage.
          * Therefore, the scheduler should be terminated, as long as there is no process to manage.
          */
-        if (pcb == NULL) {
-            //exit(0);
-        }
-
-        /**
-         * This part will only be run by the parent process.
-         */
-        if (pcb->pid != 0) {
-            printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
+        if (pcb != NULL) {
+            /**
+             * This part will only be run by the parent process.
+             */
+            if (pcb->pid != 0) {
+                printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
+            }
         }
     }
 
