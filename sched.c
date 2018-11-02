@@ -14,28 +14,25 @@ char **split(char *str, const char del, size_t *counter) {
     char **strArr = 0;
     size_t count = 0;
     char *tmp = str;
-    char *last_comma = 0;
+    char *last_delimiter = 0;
     char delim[2];
     delim[0] = del;
-    delim[1] = 0;
+    delim[1] = '\0';
 
     /* Count the number of elements that will be extracted. */
     while (*tmp) {
         if (del == *tmp) {
             count++;
-            last_comma = tmp;
+            last_delimiter = tmp;
         }
         tmp++;
     }
 
     /* Add space for the trailing token. */
-    count += last_comma < (str + strlen(str) - 1);
+    count += last_delimiter < (str + strlen(str) - 1);
 
-    /* 
-     * Add space for terminating null string so caller
-     * knows where the list of returned strings ends.
-     */
-    count++;
+    /* Add space for terminating null string so caller knows where the list of returned strings ends. */
+    count += 1;
 
     *counter = count;
 
@@ -115,11 +112,29 @@ PCB *createProcesses(char *config_file, PCB *plist) {
 
             plist = newProcess;
         } else {
-            //TODO
+            //argv is a string array that will be used for list of the command line arguments of child process.
+            char **argv = malloc(sizeof(char *) * (counter + 1));
+            char **temp = argv;
 
-            int ret = execl(str[1], str[1], str[2], str[3], str[4], NULL);
+            size_t counting = 1;
 
-            //check if the execv fails
+            while (counting <= counter) {
+                *temp = (char *) malloc(strlen(str[counting]));
+                strcpy(*temp, str[counting]);
+
+                temp += 1;
+                counting += 1;
+            }
+            *temp = NULL;
+
+            /* 
+             * The first argument of the execv should be the file path to the executable file.
+             * And the second argument of the execv is the string array that contains the command
+             * line arguments of the child process.
+             */
+            int ret = execv(str[1], argv);
+
+            // check if the execv fails
             if (ret == -1) {
                 fprintf(stderr, "Failed to execute the process %s\n", str[1]);
             }
@@ -135,6 +150,7 @@ PCB *createProcesses(char *config_file, PCB *plist) {
 
 /* The sched is a simple process scheduler that runs on the user mode. */
 int main(int argc, char **argv) {
+
     //it requires at least one command line argument, which should be the file path name of the config file.
     if (argc < 2) {
         printf("Usage: sched config_file ...\n");
@@ -154,12 +170,7 @@ int main(int argc, char **argv) {
             exit(0);
         }
 
-        /**
-         * This part will only be run by the parent process.
-         */
-        if (pcb->pid != 0) {
-            printf("pid: %d\npath: %s\n", pcb->pid, pcb->pathName);
-        }
+        //TODO scheduling!!
     }
 
     return 1;
