@@ -147,12 +147,7 @@ int main(int argc, char **argv) {
             exit(0);
         }
 
-        /**
-         * This part will only be run by the parent process.
-         */
-        if (pcb->pid != 0) {
-            printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
-        }
+        printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
     }
 
     return 1;
