@@ -107,6 +107,7 @@ PCB *createProcesses(char *config_file, PCB *plist) {
             newProcess->priority = atoi(str[0]);
 
             plist = newProcess;
+            printf("%d, %s\n", pid, str[1]);
         } else {
             //TODO
 
@@ -130,7 +131,7 @@ PCB *createProcesses(char *config_file, PCB *plist) {
 int main(int argc, char **argv) {
     //it requires at least one command line argument, which should be the file path name of the config file.
     if (argc < 2) {
-        printf("Usage: sched config_file ...");
+        printf("Usage: sched config_file ...\n");
     } else {
         PCB *pcb = NULL; // The linked list that will store the process id of each process.
 
@@ -143,13 +144,15 @@ int main(int argc, char **argv) {
          * If the process control list is null, that means that there are no process that the scheduler should manage.
          * Therefore, the scheduler should be terminated, as long as there is no process to manage.
          */
-        if (pcb != NULL) {
-            /**
-             * This part will only be run by the parent process.
-             */
-            if (pcb->pid != 0) {
-                printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
-            }
+        if (pcb == NULL) {
+            exit(0);
+        }
+
+        /**
+         * This part will only be run by the parent process.
+         */
+        if (pcb->pid != 0) {
+            printf("pid: %d\npath: %s", pcb->pid, pcb->pathName);
         }
     }
 
