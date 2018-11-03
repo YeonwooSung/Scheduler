@@ -49,9 +49,31 @@ PCB *mergePCB(PCB *first, PCB *second) {
         first->prev = NULL;
         return first;
 
-    } else {
+    } else if (first->priority != second->priority) {
+
         second->next = mergePCB(first, second->next);
         second->next->prev = second;
+        second->prev = NULL;
+        return second;
+
+    } else {
+
+        PCB *fNext = first->next;
+        PCB *sNext = second->next;
+
+        if (first->index < second->index) {
+            first->next = second;
+            second->prev = first;
+            second->next = mergePCB(fNext, sNext);
+            second->next->prev = second;
+            first->prev = NULL;
+            return first;
+        }
+
+        second->next = first;
+        first->prev = second;
+        first->next = mergePCB(fNext, sNext);
+        first->next->prev = first;
         second->prev = NULL;
         return second;
     }
