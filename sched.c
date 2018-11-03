@@ -265,27 +265,13 @@ int main(int argc, char **argv) {
     if (argc < 2) {
         printf("Usage: sched config_file ...\n");
     } else {
-        char schedMode;
-
-        if (strcmp("-rr", argv[1])) {
-            schedMode = 0;
-        } else {
-            schedMode = 1;
-        }
 
         PCB *pcb = NULL; // The linked list that will store the process id of each process.
 
-        int i = 1;
-        /* 
-         * If the value of the schedMode is 1 (non-zero), than the first command
-         * line argument is the "-rr", not the config file path.
-         */
-        if (schedMode) {
-            i = 2;
-        }
-
+        int i;
         unsigned index = 0;
-        for ( ; i < argc; i++) {
+
+        for (i = 1; i < argc; i++) {
             pcb = createProcesses(argv[i], pcb, &index);
         }
 
@@ -301,13 +287,7 @@ int main(int argc, char **argv) {
             pcb = pcb->prev;
         }
 
-        /*
-         * If the first command line argument is not "-rr", then we need to sort the linked list by priority.
-         * So, I used the merge sort algorithm to sort the linked list of the process control blocks.
-         */
-        if (!schedMode) {
-            pcb = mergeSort(pcb);
-        }
+        pcb = mergeSort(pcb);
     }
 
     return 1;
