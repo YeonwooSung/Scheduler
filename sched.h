@@ -12,6 +12,7 @@
 
 typedef struct process_control_block {
     char priority;
+    unsigned index;
     pid_t pid;
     char *pathName;
     struct process_control_block *prev;

@@ -3,12 +3,88 @@
 #define PCB_STRUCT_SIZE sizeof(PCB)
 
 /**
+ * The aim of this function is to split the linked list of the process control blocks in half.
+ * To devide it in half, I used fast node and slow node, where the fast node moves 2 blocks when the
+ * slow node moves only one block.
+ *
+ * @param (head) The pointer that points to the head node of the linked list
+ * @return The pointer that points to the central node of the linked list
+ */
+PCB *splitProcessControlBlocks(PCB *head) {
+    PCB *fast = head, *slow = head;
+
+    while (fast->next && fast->next->next) {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+
+    PCB *temp = slow->next;
+    slow->next = NULL;
+    return temp;
+}
+
+/**
+ * The aim of this function is to merge the splited nodes of the linked list for the merge sort.
+ *
+ * @param (first) the pointer that points to the first half
+ * @param (second) the pointer that points to the second half
+ * @return The pointer that points to the head node of the merged linked list.
+ */
+PCB *mergePCB(PCB *first, PCB *second) {
+    // check if first linked list is empty
+    if (!first) {
+        return second;
+    }
+
+    // check if second linked list is empty
+    if (!second) {
+        return first;
+    }
+
+    // Pick the smaller value
+    if (first->priority < second->priority) { //TODO check the priority and index!
+
+        first->next = mergePCB(first->next, second);
+        first->next->prev = first;
+        first->prev = NULL;
+        return first;
+
+    } else {
+        second->next = mergePCB(first, second->next);
+        second->next->prev = second;
+        second->prev = NULL;
+        return second;
+    }
+}
+
+/**
+ * This function sorts the process control blocks with the merge sort algorithm.
+ *
+ * @param (headNode) The head node of the linked list.
+ * @return The pointer that points to the merge-sorted linked list.
+ */
+PCB *mergeSort(PCB *headNode) {
+    if (!headNode || !headNode->next) {
+        return headNode;
+    }
+
+    PCB *second = splitProcessControlBlocks(headNode);
+
+    // Recur for the first half and the second half of the linked list.
+    headNode = mergeSort(headNode);
+    second = mergeSort(second);
+
+    // Merge the two sorted halves, and return the sorted linked list.
+    return mergePCB(headNode, second);
+}
+
+/**
  * This function splits the string with the given delimiter.
  *
- * @param str the target string that should be splited
- * @param del the delimiter
- * @param counter to count the number of splited strings
- * @return the 2D pointer, which is a string array that stores the splited strings
+ * @param (str) The target string that should be splited
+ * @param (del) The delimiter
+ * @param (counter) To count the number of splited strings
+ * @return The 2D pointer, which is a string array that stores the splited strings
  */
 char **split(char *str, const char del, size_t *counter) {
     char **strArr = 0;
@@ -56,8 +132,8 @@ char **split(char *str, const char del, size_t *counter) {
  * The aim of this function is to free the strings in the string array.
  * It will free all strings except strArr[1], which is the file path name of the executable file of the child process.
  *
- * @param strArr the string array that contains the splited string, which should be freed
- * @param counter the number of string elements that the string array has
+ * @param (strArr) The string array that contains the splited string, which should be freed
+ * @param (counter) The number of string elements that the string array has
  */
 void freeStrings(char **strArr, size_t counter) {
     free(strArr[0]);
@@ -73,11 +149,12 @@ void freeStrings(char **strArr, size_t counter) {
 /**
  * The aim of this function is to create the child process and add the process information to the process control block.
  *
- * @param config_file the file name of the config file
- * @param plist the pointer that points to the linked list of the process control block.
- * @return the pointer that points to the last process control block
+ * @param (config_file) The file name of the config file
+ * @param (plist) The pointer that points to the linked list of the process control block.
+ * @param (index) The pointer that points to the index of the process.
+ * @return The pointer that points to the last process control block
  */
-PCB *createProcesses(char *config_file, PCB *plist) {
+PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
     FILE *fp = fopen(config_file, "r");
     char *line = NULL;
 
@@ -99,20 +176,31 @@ PCB *createProcesses(char *config_file, PCB *plist) {
         if (pid < 0) {
             fprintf(stderr, "Failed to execute the process %s\n", str[1]);
         } else if (pid > 0) {
+
             kill(pid, SIGSTOP); //send the STOP signal to the corresponding process
 
             PCB *newProcess = (PCB *) malloc(PCB_STRUCT_SIZE);
 
-            newProcess->prev = plist;
-            newProcess->pid = pid;
-            newProcess->next = NULL;
+            newProcess->prev = plist; // append the new node to the linked list
+            newProcess->pid = pid;    // set the process id
+            newProcess->next = NULL;  // set the next node as NULL
 
+            // set the file path name of the process
             newProcess->pathName = str[1];
             newProcess->priority = atoi(str[0]);
 
+            // set the index of the process
+            newProcess->index = *index;
+            *index += 1; //increase the index
+
             plist = newProcess;
+
         } else {
-            //argv is a string array that will be used for list of the command line arguments of child process.
+
+            /* 
+             * The 2D pointer argv is a string array that will be used for list of the command line 
+             * arguments of child process.
+             */
             char **argv = malloc(sizeof(char *) * (counter + 1));
             char **temp = argv;
 
@@ -155,11 +243,28 @@ int main(int argc, char **argv) {
     if (argc < 2) {
         printf("Usage: sched config_file ...\n");
     } else {
+        char schedMode;
+
+        if (strcmp("-rr", argv[1])) {
+            schedMode = 0;
+        } else {
+            schedMode = 1;
+        }
+
         PCB *pcb = NULL; // The linked list that will store the process id of each process.
 
-        int i;
-        for (i = 1; i < argc; i++) {
-            pcb = createProcesses(argv[i], pcb);
+        int i = 1;
+        /* 
+         * If the value of the schedMode is 1 (non-zero), than the first command
+         * line argument is the "-rr", not the config file path.
+         */
+        if (schedMode) {
+            i = 2;
+        }
+
+        unsigned index = 0;
+        for ( ; i < argc; i++) {
+            pcb = createProcesses(argv[i], pcb, &index);
         }
 
         /*
@@ -170,7 +275,17 @@ int main(int argc, char **argv) {
             exit(0);
         }
 
-        //TODO scheduling!!
+        while (pcb->prev) { // use the while loop to find the head node of the linked list of process control blocks.
+            pcb = pcb->prev;
+        }
+
+        /*
+         * If the first command line argument is not "-rr", then we need to sort the linked list by priority.
+         * So, I used the merge sort algorithm to sort the linked list of the process control blocks.
+         */
+        if (!schedMode) {
+            pcb = mergeSort(pcb);
+        }
     }
 
     return 1;
