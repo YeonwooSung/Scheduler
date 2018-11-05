@@ -265,8 +265,6 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
  */
 void freeList(PCB *p_list) {
     while (p_list) {
-        //TODO signal kill
-
         free(p_list->pathName);
         PCB *next = p_list->next;
         free(p_list);
