@@ -258,6 +258,22 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
     return plist;
 }
 
+/**
+ * This function frees all allocated memory.
+ *
+ * @param (p_list) The pointer that points to the head node of the linked list
+ */
+void freeList(PCB *p_list) {
+    while (p_list) {
+        //TODO signal kill
+
+        free(p_list->pathName);
+        PCB *next = p_list->next;
+        free(p_list);
+        p_list = next;
+    }
+}
+
 /* The sched is a simple process scheduler that runs on the user mode. */
 int main(int argc, char **argv) {
 
@@ -283,11 +299,17 @@ int main(int argc, char **argv) {
             exit(0);
         }
 
-        while (pcb->prev) { // use the while loop to find the head node of the linked list of process control blocks.
-            pcb = pcb->prev;
-        }
+        /* This part will only be run by the parent process. */
+        if (pcb->pid > 0) {
 
-        pcb = mergeSort(pcb);
+            while (pcb->prev) { // use the while loop to find the head node of the linked list of process control blocks.
+                pcb = pcb->prev;
+            }
+
+            pcb = mergeSort(pcb);
+
+            freeList(pcb); //free the dynamically allocated memory
+        }
     }
 
     return 1;
