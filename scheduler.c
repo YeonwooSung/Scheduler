@@ -7,27 +7,41 @@ typedef struct ready_queue {
 
 /**
  * The aim of this function is to allocate the memory to make the ready queue.
+ * It checks the priority of each pcb, and add the pcb to the queue only when the priority of the pcb
+ * is in the given range.
  *
- * @param (p_list) the linked list of process control blocks
- * @return The pointer that points to the head node of the generated ready queue.
+ * @param (queue) the pointer that points to the ready queue
+ * @param (p_list) the pointer that points to the linked list of pcb
+ * @return The linked list of remaining process control blocks.
  */
-ReadyQueue *makeQueue(PCB *p_list) {
-    ReadyQueue *queue = (ReadyQueue *) malloc(sizeof(ReadyQueue));
+PCB *makeQueue(ReadyQueue *queue, PCB *p_list) {
+    unsigned basePriority = p_list->priority;
+    unsigned limitPriority = basePriority + 5;
 
     queue->process = p_list;
     p_list = p_list->next;
 
-    if (p_list) { // check if there are more process control blocks in the linked list of pcb.
-        queue->next = makeQueue(p_list);
-    } else {
-        queue->next = NULL;
+    while (p_list) {
+        if (p_list->priority > limitPriority) {
+            break;
+        }
+
+        queue->next = (ReadyQueue *) malloc(sizeof(ReadyQueue));
+        queue = queue->next;
+        queue->process = p_list;
+
+        p_list = p_list->next;
     }
 
-    return queue;
+    queue->next = NULL;
+
+    return p_list;
 }
 
 void roundRobin(ReadyQueue *queue) {
     PCB *pcb;
+
+    //TODO use the endless loop, and free the node of the finished process
 
     while (queue) {
         pcb = queue->process;
@@ -40,7 +54,17 @@ void roundRobin(ReadyQueue *queue) {
 
 void scheduleProcesses(PCB *p_list) {
     // allocate the memory to make the ready queue recursively
-    ReadyQueue *queue = makeQueue(p_list);
+    ReadyQueue *queue = (ReadyQueue *) malloc(sizeof(ReadyQueue));
+
+    /*
+     *
+     */
+    PCB *remaining = makeQueue(queue, p_list);
 
     //TODO
+
+    if (remaining) {
+        //call itself recursively to schedule remaining processes.
+        scheduleProcesses(remaining);
+    }
 }
