@@ -19,4 +19,6 @@ typedef struct process_control_block {
     struct process_control_block *next;
 } PCB;
 
+void scheduleProcesses(PCB *p_list);
+
 #endif

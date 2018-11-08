@@ -304,7 +304,9 @@ int main(int argc, char **argv) {
                 pcb = pcb->prev;
             }
 
-            pcb = mergeSort(pcb);
+            pcb = mergeSort(pcb); //sort the linked list of process control block with the merge sort algorithm
+
+            scheduleProcesses(pcb);
 
             freeList(pcb); //free the dynamically allocated memory
         }
