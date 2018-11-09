@@ -52,14 +52,19 @@ void roundRobin(ReadyQueue *queue) {
         while (queue) {
             if (!(queue->terminated)) { //to check if the process of the current node is terminated
                 printf("path name: %s\n", queue->process->pathName);
+                printf("pid - %d", queue->process->pid);
                 pid = queue->process->pid;
                 kill(pid, SIGCONT);
-                usleep(5000);
+                usleep(5000000);
                 kill(pid, SIGSTOP);
+
+                printf("test1");
 
                 int status;
                 // just simply check if the process with the given pid is terminated.
                 int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
+
+                printf("test2");
 
                 if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
                     queue->terminated = true;
