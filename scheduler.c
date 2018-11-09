@@ -61,7 +61,7 @@ void roundRobin(ReadyQueue *queue) {
                 // just simply check if the process with the given pid is terminated.
                 int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
 
-                if (ret == pid) { //if the given process is terminated, then the waitpid returns the pid.
+                if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
                     queue->terminated = true;
                 }
             }
