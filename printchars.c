@@ -5,8 +5,10 @@
 int main(int argc, char** argv) {
     char c;
 
-    if(argc < 2) c = '*';
-    else c = *argv[1];
+    if(argc < 2)
+        c = '*';
+    else
+        c = *argv[1];
 
     for(int i=0; i<30; i++) {
         printf("%c",c);
