@@ -83,6 +83,7 @@ void scheduleProcesses(PCB *p_list) {
     ReadyQueue *queue = makeQueue(p_list);
 
     //TODO use the proper scheduling function
+    roundRobin(queue);
 
     freeQueue(queue); //free the allocated memory
 }
