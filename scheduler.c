@@ -29,6 +29,19 @@ ReadyQueue *makeQueue(PCB *p_list) {
     return queue;
 }
 
+/**
+ * This function frees the allocated memory of the ready queue.
+ *
+ * @param (queue) the pointer that points to the ready queue
+ */
+void freeQueue(ReadyQueue *queue) {
+    while (queue) {
+        ReadyQueue *temp = queue->next;
+        free(queue);
+        queue = temp;
+    }
+}
+
 void roundRobin(ReadyQueue *queue) {
     pid_t pid;
     bool checker;
@@ -70,4 +83,6 @@ void scheduleProcesses(PCB *p_list) {
     ReadyQueue *queue = makeQueue(p_list);
 
     //TODO use the proper scheduling function
+
+    freeQueue(queue); //free the allocated memory
 }
