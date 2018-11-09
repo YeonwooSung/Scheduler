@@ -54,20 +54,20 @@ void roundRobin(ReadyQueue *queue) {
 
         while (queue) {
 
-            if (!(queue->terminated)) { //to check if the process of the current node is terminated
+            if (queue->terminated == 0) { //to check if the process of the current node is terminated
                 pid = queue->process->pid;
                 kill(pid, SIGCONT);
-                usleep(5000000);
+                usleep(500000);
                 kill(pid, SIGSTOP);
-
 
                 int status;
                 // just simply check if the process with the given pid is terminated.
                 int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
 
-                if (ret == pid) { //if the given process is terminated, then the waitpid returns the pid.
+                if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
                     queue->terminated = 1;
                 }
+
             }
 
             checker = checker & queue->terminated; //use the AND operator to check if all processes are terminated.

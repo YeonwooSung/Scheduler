@@ -193,6 +193,26 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
 
         char **str = split(line, ' ', &counter); //split the read line with the whitespace.
 
+        /* 
+         * The 2D pointer argv is a string array that will be used for list of the command line 
+         * arguments of child process.
+         */
+        char **argv = malloc(sizeof(char *) * (counter + 1));
+        char **temp = argv;
+
+        size_t counting = 1;
+
+        while (counting <= counter) {
+            *temp = (char *)malloc(strlen(str[counting]));
+            strcpy(*temp, str[counting]);
+
+            temp += 1;
+            counting += 1;
+        }
+
+        *temp = NULL;
+        printf("fuck!\n");
+
         pid_t pid = fork();
 
         if (pid < 0) {
@@ -220,37 +240,16 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             *index += 1; //increase the index
 
             plist = newProcess;
+
         } else {
-
-            /* 
-             * The 2D pointer argv is a string array that will be used for list of the command line 
-             * arguments of child process.
-             */
-            char **argv = malloc(sizeof(char *) * (counter + 1));
-            char **temp = argv;
-
-            size_t counting = 1;
-
-            while (counting <= counter) {
-                *temp = (char *) malloc(strlen(str[counting]));
-                strcpy(*temp, str[counting]);
-
-                temp += 1;
-                counting += 1;
-            }
-            *temp = NULL;
-
             /* 
              * The first argument of the execv should be the file path to the executable file.
              * And the second argument of the execv is the string array that contains the command
              * line arguments of the child process.
              */
-            int ret = execv(str[1], argv);
+            execv(str[1], argv);
 
-            // check if the execv fails
-            if (ret == -1) {
-                fprintf(stderr, "Failed to execute the process %s\n", str[1]);
-            }
+            //execl("./printchars", "./printchars", "b", NULL);
         }
 
         freeStrings(str, counter); //free the splited strings (except the file path name)
