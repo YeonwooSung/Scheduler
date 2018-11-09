@@ -11,6 +11,6 @@ int main(int argc, char** argv) {
     for(int i=0; i<30; i++) {
         printf("%c",c);
         fflush(stdout);
-        usleep(100000);
+        //usleep(100000);
     }
 }
