@@ -1,7 +1,7 @@
 #include "sched.h"
 
 typedef struct ready_queue {
-    bool terminated;
+    char terminated;
     PCB *process;
     struct ready_queue *next;
 } ReadyQueue;
@@ -19,6 +19,7 @@ ReadyQueue *makeQueue(PCB *p_list) {
         ReadyQueue *queue = (ReadyQueue *)malloc(sizeof(ReadyQueue));
 
         queue->process = p_list;
+        queue->terminated = 0;
 
         //call itself recursively to make the next node
         queue->next = makeQueue(p_list->next);
@@ -45,31 +46,27 @@ void freeQueue(ReadyQueue *queue) {
 
 void roundRobin(ReadyQueue *queue) {
     pid_t pid;
-    bool checker;
+    char checker;
+    ReadyQueue *temp = queue;
 
     for (;;) {
-        checker = false; //initialise the value of the local variable checker
+        checker = 1; //initialise the value of the local variable checker
 
         while (queue) {
+
             if (!(queue->terminated)) { //to check if the process of the current node is terminated
-                printf("test");
-                printf("pid - %d", queue->process->pid);
                 pid = queue->process->pid;
                 kill(pid, SIGCONT);
                 usleep(5000000);
                 kill(pid, SIGSTOP);
 
-                printf("test1");
 
                 int status;
                 // just simply check if the process with the given pid is terminated.
                 int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
 
-                printf("test2");
-
-                if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
-                    queue->terminated = true;
-                    printf("terminated - %d", ret);
+                if (ret == pid) { //if the given process is terminated, then the waitpid returns the pid.
+                    queue->terminated = 1;
                 }
             }
 
@@ -82,13 +79,14 @@ void roundRobin(ReadyQueue *queue) {
         if (checker) {
             break; // if all processes are terminated, break the endless for loop
         }
+
+        queue = temp; //reset the queue pointer to the first node.
     }
 }
 
 void scheduleProcesses(PCB *p_list) {
     // allocate the memory to make the ready queue recursively
     ReadyQueue *queue = makeQueue(p_list);
-    printf("yep!\n");
 
     //TODO use the proper scheduling function
     roundRobin(queue);
