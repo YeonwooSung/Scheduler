@@ -31,24 +31,37 @@ ReadyQueue *makeQueue(PCB *p_list) {
 
 void roundRobin(ReadyQueue *queue) {
     pid_t pid;
+    bool checker;
 
-    //TODO use the endless loop, and free the node of the finished process
+    for (;;) {
+        checker = false; //initialise the value of the local variable checker
 
-    while (queue) {
-        pid = queue->process->pid;
-        kill(pid, SIGCONT);
-        usleep(5000);
-        kill(pid, SIGSTOP);
+        while (queue) {
+            if (!(queue->terminated)) { //to check if the process of the current node is terminated
 
-        int status;
-        // just simply check if the process with the given pid is terminated.
-        int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
+                pid = queue->process->pid;
+                kill(pid, SIGCONT);
+                usleep(5000);
+                kill(pid, SIGSTOP);
 
-        if (ret == pid) { //if the given process is terminated, then the waitpid returns the pid.
-            queue->terminated = true;
+                int status;
+                // just simply check if the process with the given pid is terminated.
+                int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
+
+                if (ret == pid) { //if the given process is terminated, then the waitpid returns the pid.
+                    queue->terminated = true;
+                }
+            }
+
+            checker = checker & queue->terminated; //use the AND operator to check if all processes are terminated.
+
+            queue = queue->next;
         }
 
-        queue = queue->next;
+        // if all processes are terminated, then the value of the checker should be true
+        if (checker) {
+            break; // if all processes are terminated, break the endless for loop
+        }
     }
 }
 
