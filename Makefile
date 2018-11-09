@@ -1,6 +1,6 @@
 all:
-	printchars
 	sched
+	printchars
 
 clean:
 	rm printchars
