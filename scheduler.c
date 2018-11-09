@@ -29,7 +29,7 @@ PCB *makeQueue(ReadyQueue *queue, PCB *p_list) {
         queue->next = (ReadyQueue *) malloc(sizeof(ReadyQueue));
         queue = queue->next;
         queue->process = p_list;
-
+        
         p_list = p_list->next;
     }
 
@@ -39,15 +39,21 @@ PCB *makeQueue(ReadyQueue *queue, PCB *p_list) {
 }
 
 void roundRobin(ReadyQueue *queue) {
-    PCB *pcb;
+    pid_t pid;
 
     //TODO use the endless loop, and free the node of the finished process
 
     while (queue) {
-        pcb = queue->process;
-        kill(pcb->pid, SIGCONT);
+        pid = queue->process->pid;
+        kill(pid, SIGCONT);
         usleep(5000);
-        kill(pcb->pid, SIGSTOP);
+        kill(pid, SIGSTOP);
+
+        //TODO check if the child process is terminated
+        int status;
+        // just simply check if the process with the given pid is terminated.
+        int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
+
         queue = queue->next;
     }
 }
