@@ -13,22 +13,21 @@ typedef struct ready_queue {
  * @return The pointer that points to the head node of the generated ready queue.
  */
 ReadyQueue *makeQueue(PCB *p_list) {
-    ReadyQueue *queue = (ReadyQueue *)malloc(sizeof(ReadyQueue));
-
-    queue->process = p_list;
-    p_list = p_list->next;
-    printf("test - makeQueue\n");
-    printf("%d\n", p_list->pid);
 
     // check if there are more process control blocks in the linked list of pcb.
     if (p_list) {
+        ReadyQueue *queue = (ReadyQueue *)malloc(sizeof(ReadyQueue));
+
+        queue->process = p_list;
+
         //call itself recursively to make the next node
-        queue->next = makeQueue(p_list);
+        queue->next = makeQueue(p_list->next);
+
+        return queue;
     } else {
-        queue->next = NULL;
+        return NULL;
     }
 
-    return queue;
 }
 
 /**
@@ -89,6 +88,7 @@ void roundRobin(ReadyQueue *queue) {
 void scheduleProcesses(PCB *p_list) {
     // allocate the memory to make the ready queue recursively
     ReadyQueue *queue = makeQueue(p_list);
+    printf("yep!\n");
 
     //TODO use the proper scheduling function
     roundRobin(queue);

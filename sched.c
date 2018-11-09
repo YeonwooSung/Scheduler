@@ -207,6 +207,10 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             newProcess->pid = pid;    // set the process id
             newProcess->next = NULL;  // set the next node as NULL
 
+            if (plist) {
+                plist->next = newProcess;
+            }
+
             // set the file path name of the process
             newProcess->pathName = str[1];
             newProcess->priority = atoi(str[0]);
@@ -216,7 +220,6 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             *index += 1; //increase the index
 
             plist = newProcess;
-
         } else {
 
             /* 
