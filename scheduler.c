@@ -17,6 +17,8 @@ ReadyQueue *makeQueue(PCB *p_list) {
 
     queue->process = p_list;
     p_list = p_list->next;
+    printf("test - makeQueue\n");
+    printf("%d\n", p_list->pid);
 
     // check if there are more process control blocks in the linked list of pcb.
     if (p_list) {
