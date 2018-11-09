@@ -216,7 +216,7 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             *index += 1; //increase the index
 
             plist = newProcess;
-            printf("createNewProcess() - pid=(%d)", pid);
+            printf("createNewProcess() - pid=(%d)\n", pid);
 
         } else {
 
