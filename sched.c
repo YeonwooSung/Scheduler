@@ -306,6 +306,7 @@ int main(int argc, char **argv) {
 
             pcb = mergeSort(pcb); //sort the linked list of process control block with the merge sort algorithm
 
+            // call the scheduleProcesses() function to schedule the processes
             scheduleProcesses(pcb);
 
             freeList(pcb); //free the dynamically allocated memory
