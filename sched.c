@@ -49,7 +49,7 @@ PCB *mergePCB(PCB *first, PCB *second) {
         first->prev = NULL;
         return first;
 
-    } else if (first->priority != second->priority) {
+    } else if (first->priority != second->priority || first->index > second->index) {
 
         second->next = mergePCB(first, second->next);
         second->next->prev = second;
@@ -57,14 +57,6 @@ PCB *mergePCB(PCB *first, PCB *second) {
         return second;
 
     } else {
-
-        if (first->index < second->index) {
-            first->next = mergePCB(first->next, second);
-            first->next->prev = first;
-            first->prev = NULL;
-            return first;
-        }
-
         second->next = mergePCB(first, second->next);
         second->next->prev = second;
         second->prev = NULL;
