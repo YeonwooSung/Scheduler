@@ -115,6 +115,11 @@ void roundRobin(ReadyQueue *queue) {
     }
 }
 
+/**
+ * This function
+ *
+ * @param (p_list) the linked list of process control blocks
+ */
 void scheduleProcesses(PCB *p_list) {
     // allocate the memory to make the ready queue recursively
     ReadyQueue *queue = makeQueue(p_list);
