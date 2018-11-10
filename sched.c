@@ -109,8 +109,11 @@ char *trimStr(char *s) {
 
     strcpy(t, s);
     end = t + strlen(t) - 1;
-    while (end != t && (*end < 33))
+
+    while (end != t && isspace(*end)) { //(*end < 33)
         end--;
+    }
+
     *(end + 1) = '\0';
 
     char *newStr = (char *) malloc(strlen(t) + 1);
