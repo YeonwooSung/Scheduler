@@ -102,6 +102,9 @@ PCB *mergeSort(PCB *headNode) {
 
 /**
  * This function trims the string to remove the whitespaces at the right-side of the given string.
+ *
+ * @param (s) the pointer that points to the target string
+ * @return trimmed string
  */
 char *trimStr(char *s) {
     char t[300];
