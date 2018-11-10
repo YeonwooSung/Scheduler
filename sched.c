@@ -230,7 +230,7 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
         size_t counting = 1;
 
         while (counting < counter) {
-            *temp = (char *)malloc(strlen(strArr[counting]) + 1);
+            *temp = (char *) malloc(strlen(strArr[counting]) + 1);
             strcpy(*temp, strArr[counting]);
 
             temp += 1;
@@ -278,7 +278,12 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
 
         temp = argv;
 
-        freeStrings(argv, counter - 1);
+        //free the string array, which is used for the commnad line arguments of the child process.
+        while (counting < counter) {
+            free(temp);
+            temp += 1;
+            counting += 1;
+        }
         free(argv);
 
         freeStrings(strArr, counter); //free the splited strings (except the file path name)
