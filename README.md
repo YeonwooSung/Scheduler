@@ -36,3 +36,26 @@ The sched accepts a single command line argument, which is the file path of the 
 - Process with highest priority is to be executed first and so on.
 - Processes with same priority are executed on first come first served basis.
 - Priority can be decided based on memory requirements, time requirements or any other resource requirement.
+
+### Shortest Remaining Time
+
+- Shortest remaining time (SRT) is the preemptive version of the SJN algorithm.
+- The processor is allocated to the job closest to completion.
+- The older job can be preempted by a newer ready job with shorter time to completion.
+- Impossible to implement in interactive systems where required CPU time is not known.
+- It is often used in batch environments where short jobs need to give preference.
+
+### Round Robin Scheduling
+
+- Round Robin is the preemptive process scheduling algorithm.
+- Each process is provided a fix time to execute, it is called a quantum.
+- Once a process is executed for a given time period, it is preempted and other process executes for a given time period.
+- Context switching is used to save states of preempted processes.
+
+### Multiple Level Queue
+
+- Multiple-level queues are not an independent scheduling algorithm. 
+- All Queues make use of other existing algorithms to group and schedule jobs with common characteristics.
+- Multiple queues are maintained for processes with common characteristics.
+- Each queue can have its own scheduling algorithms.
+- Priorities are assigned to each queue.
