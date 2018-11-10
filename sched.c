@@ -101,6 +101,27 @@ PCB *mergeSort(PCB *headNode) {
 }
 
 /**
+ * This function trims the string to remove the whitespaces at the right-side of the given string.
+ */
+char *trimStr(char *s) {
+    char t[300];
+    char *end;
+
+    strcpy(t, s);
+    end = t + strlen(t) - 1;
+    while (end != t && (*end < 33))
+        end--;
+    *(end + 1) = '\0';
+
+    char *newStr = (char *) malloc(strlen(t) + 1);
+    strcpy(newStr, t);
+
+    free(s); //free the given string
+
+    return newStr;
+}
+
+/**
  * This function splits the string with the given delimiter.
  *
  * @param (str) The target string that should be splited
@@ -108,7 +129,7 @@ PCB *mergeSort(PCB *headNode) {
  * @param (counter) To count the number of splited strings
  * @return The 2D pointer, which is a string array that stores the splited strings
  */
-char **split(char *str, const char del, size_t *counter) {
+char **splitStr(char *str, const char del, size_t *counter) {
     char **strArr = 0;
     size_t count = 0;
     char *tmp = str;
@@ -132,20 +153,21 @@ char **split(char *str, const char del, size_t *counter) {
     /* Add space for terminating null string so caller knows where the list of returned strings ends. */
     count += 1;
 
-    *counter = count;
-
     strArr = malloc(sizeof(char *) * count);
 
+    size_t idx = 0;
+
     if (strArr) {
-        size_t idx = 0;
         char *token = strtok(str, delim);
 
         while (token) {
-            *(strArr + idx++) = strdup(token);
+            *(strArr + idx++) = strdup(token); //use the trim() to remove the whitespaces in the token
             token = strtok(0, delim);
         }
         *(strArr + idx) = 0;
     }
+
+    *counter = idx;
 
     return strArr;
 }
@@ -191,32 +213,33 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
     while ((read = getline(&line, &len, fp)) != -1) {// reads text until newline
         size_t counter = 0; //to count the number of splited strings
 
-        char **str = split(line, ' ', &counter); //split the read line with the whitespace.
+        char **strArr = splitStr(line, ' ', &counter); //split the read line with the whitespace.
+
+        *(strArr + counter - 1) = trimStr(strArr[counter - 1]);
 
         /* 
          * The 2D pointer argv is a string array that will be used for list of the command line 
          * arguments of child process.
          */
-        char **argv = malloc(sizeof(char *) * (counter + 1));
+        char **argv = malloc(sizeof(char *) * counter);
         char **temp = argv;
 
         size_t counting = 1;
 
-        while (counting <= counter) {
-            *temp = (char *)malloc(strlen(str[counting]));
-            strcpy(*temp, str[counting]);
+        while (counting < counter) {
+            *temp = (char *)malloc(strlen(strArr[counting]));
+            strcpy(*temp, strArr[counting]);
 
             temp += 1;
             counting += 1;
         }
 
         *temp = NULL;
-        printf("fuck!\n");
 
         pid_t pid = fork();
 
         if (pid < 0) {
-            fprintf(stderr, "Failed to execute the process %s\n", str[1]);
+            fprintf(stderr, "Failed to execute the process %s\n", strArr[1]);
         } else if (pid > 0) {
 
             kill(pid, SIGSTOP); //send the STOP signal to the corresponding process
@@ -232,8 +255,8 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             }
 
             // set the file path name of the process
-            newProcess->pathName = str[1];
-            newProcess->priority = atoi(str[0]);
+            newProcess->pathName = strArr[1];
+            newProcess->priority = atoi(strArr[0]);
 
             // set the index of the process
             newProcess->index = *index;
@@ -247,13 +270,11 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
              * And the second argument of the execv is the string array that contains the command
              * line arguments of the child process.
              */
-            execv(str[1], argv);
-
-            //execl("./printchars", "./printchars", "b", NULL);
+            execv(strArr[1], argv);
         }
 
-        freeStrings(str, counter); //free the splited strings (except the file path name)
-        free(str);
+        freeStrings(strArr, counter); //free the splited strings (except the file path name)
+        free(strArr);
     }
 
     fclose(fp);
