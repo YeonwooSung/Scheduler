@@ -330,7 +330,8 @@ int main(int argc, char **argv) {
                 pcb = pcb->prev;
             }
 
-            pcb = mergeSort(pcb); //sort the linked list of process control block with the merge sort algorithm
+            //TODO found some error in the mergeSort()
+            //pcb = mergeSort(pcb); //sort the linked list of process control block with the merge sort algorithm
 
             // call the scheduleProcesses() function to schedule the processes
             scheduleProcesses(pcb);
