@@ -336,6 +336,8 @@ int main(int argc, char **argv) {
             scheduleProcesses(pcb);
 
             freeList(pcb); //free the dynamically allocated memory
+
+            printf("\nFinishing.....................\n");
         }
     }
 
