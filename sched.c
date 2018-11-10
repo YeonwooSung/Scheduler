@@ -276,6 +276,16 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             execv(strArr[1], argv);
         }
 
+        temp = argv;
+
+        while (counting < counter) {
+            free(temp);
+
+            temp += 1;
+            counting += 1;
+        }
+        free(argv);
+
         freeStrings(strArr, counter); //free the splited strings (except the file path name)
         free(strArr);
     }
