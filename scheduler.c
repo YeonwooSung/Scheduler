@@ -86,6 +86,8 @@ void roundRobin(ReadyQueue *queue) {
         while (queue) {
 
             if (queue->terminated == 0) { //to check if the process of the current node is terminated
+                printf("\n%s:\n", queue->process->pathName);
+
                 pid = queue->process->pid;
                 kill(pid, SIGCONT);
                 usleep(500000);
