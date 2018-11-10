@@ -58,22 +58,15 @@ PCB *mergePCB(PCB *first, PCB *second) {
 
     } else {
 
-        PCB *fNext = first->next;
-        PCB *sNext = second->next;
-
         if (first->index < second->index) {
-            first->next = second;
-            second->prev = first;
-            second->next = mergePCB(fNext, sNext);
-            second->next->prev = second;
+            first->next = mergePCB(first->next, second);
+            first->next->prev = first;
             first->prev = NULL;
             return first;
         }
 
-        second->next = first;
-        first->prev = second;
-        first->next = mergePCB(fNext, sNext);
-        first->next->prev = first;
+        second->next = mergePCB(first, second->next);
+        second->next->prev = second;
         second->prev = NULL;
         return second;
     }
@@ -344,7 +337,7 @@ int main(int argc, char **argv) {
             }
 
             //TODO found some error in the mergeSort()
-            //pcb = mergeSort(pcb); //sort the linked list of process control block with the merge sort algorithm
+            pcb = mergeSort(pcb); //sort the linked list of process control block with the merge sort algorithm
 
             // call the scheduleProcesses() function to schedule the processes
             scheduleProcesses(pcb);
