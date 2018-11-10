@@ -69,7 +69,7 @@ void priorityBasedScheduling(ReadyQueue *queue) {
 
 /**
  * This function manages the process control blocks with the round robin scheduling algorithm.
- * Round Robin is the preemptive process scheduling algorithm. And each process is provided
+ * Round Robin is the preemptive process scheduling algorithm. Each process is provided
  * a fix time to execute, it is called a quantum. Once a process is executed for a given time
  * period, it is preempted and other process executes for a given time period.
  *
