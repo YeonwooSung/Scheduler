@@ -344,7 +344,7 @@ int main(int argc, char **argv) {
 
             freeList(pcb); //free the dynamically allocated memory
 
-            printf("\nFinishing.....................\n");
+            printf("\n\nFinishing.....................\n");
         }
     }
 
