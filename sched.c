@@ -269,7 +269,7 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
 
         //free the string array, which is used for the commnad line arguments of the child process.
         while (counting < counter) {
-            free(temp);
+            free(*temp);
             temp += 1;
             counting += 1;
         }
