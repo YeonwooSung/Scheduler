@@ -44,6 +44,14 @@ void freeQueue(ReadyQueue *queue) {
     }
 }
 
+/**
+ * This function manages the process control blocks with the round robin scheduling algorithm.
+ * Round Robin is the preemptive process scheduling algorithm. And each process is provided
+ * a fix time to execute, it is called a quantum. Once a process is executed for a given time
+ * period, it is preempted and other process executes for a given time period.
+ *
+ * @param (queue) the ready queue that contains the processes that should be scheduled.
+ */
 void roundRobin(ReadyQueue *queue) {
     pid_t pid;
     char checker;
