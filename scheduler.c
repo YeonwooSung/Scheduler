@@ -45,6 +45,29 @@ void freeQueue(ReadyQueue *queue) {
 }
 
 /**
+ * This function manages the pcbs with the priority based scheduling algorithm.
+ * The priority based scheduling is a non-preemptive algorithm.
+ *
+ * As I used the merge sort to sort the linked list of pcb based on the priority of each process,
+ * the ready queue is ordered by the priority of the processes. Thus, this function just activate
+ * each processes and wait until the child process finishes.
+ *
+ * @param (queue) the ready queue that is ordered by the priority of the processes
+ */
+void priorityBasedScheduling(ReadyQueue *queue) {
+    int status;
+
+    while (queue) {
+        kill(queue->process->pid, SIGCONT);
+
+        // wait until the child process is terminated.
+        int ret = waitpid(queue->process->pid, &status, 0);
+
+        queue = queue->next;
+    }
+}
+
+/**
  * This function manages the process control blocks with the round robin scheduling algorithm.
  * Round Robin is the preemptive process scheduling algorithm. And each process is provided
  * a fix time to execute, it is called a quantum. Once a process is executed for a given time
@@ -55,7 +78,7 @@ void freeQueue(ReadyQueue *queue) {
 void roundRobin(ReadyQueue *queue) {
     pid_t pid;
     char checker;
-    ReadyQueue *temp = queue;
+    ReadyQueue *temp = queue; //to store the memory address of the head node of the ready queue
 
     for (;;) {
         checker = 1; //initialise the value of the local variable checker
