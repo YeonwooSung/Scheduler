@@ -292,6 +292,9 @@ void freeList(PCB *p_list) {
     while (p_list) {
         free(p_list->pathName);
         PCB *next = p_list->next;
+
+        kill(p_list->pid, SIGTERM); // send the SIGTERM to kill the process before free the pcb
+
         free(p_list);
         p_list = next;
     }
