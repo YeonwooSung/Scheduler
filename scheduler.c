@@ -87,7 +87,7 @@ void roundRobin(ReadyQueue *queue) {
 
             if (queue->terminated == 0) { //to check if the process of the current node is terminated
                 pid = queue->process->pid;
-                printf("\n%s (pid=%d):\n", queue->process->pathName, pid);
+                printf("\n%s (pid=%d)\n", queue->process->pathName, pid);
 
                 kill(pid, SIGCONT);
                 usleep(500000);
@@ -115,6 +115,10 @@ void roundRobin(ReadyQueue *queue) {
 
         queue = temp; //reset the queue pointer to the first node.
     }
+}
+
+void multipleQueueScheduling(ReadyQueue *queue) {
+    //
 }
 
 /**
