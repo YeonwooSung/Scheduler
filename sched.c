@@ -230,7 +230,7 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
         size_t counting = 1;
 
         while (counting < counter) {
-            *temp = (char *)malloc(strlen(strArr[counting]));
+            *temp = (char *)malloc(strlen(strArr[counting]) + 1);
             strcpy(*temp, strArr[counting]);
 
             temp += 1;
