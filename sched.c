@@ -57,10 +57,11 @@ PCB *mergePCB(PCB *first, PCB *second) {
         return second;
 
     } else {
-        second->next = mergePCB(first, second->next);
-        second->next->prev = second;
-        second->prev = NULL;
-        return second;
+
+        first->next = mergePCB(first->next, second);
+        first->next->prev = first;
+        first->prev = NULL;
+        return first;
     }
 }
 
