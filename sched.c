@@ -310,14 +310,16 @@ int main(int argc, char **argv) {
 
         PCB *pcb = NULL; // The linked list that will store the process id of each process.
 
-        int i = 1;
+        int i = 2;
         unsigned index = 0;
         char mode = 0;
 
-        //check if the user wants the priority based scheduling
-        if (strcmp(argv[1], "-p") == 0) {
-            i = 2;
+        if (strcmp(argv[1], "-p") == 0) { //check if the user wants the priority based scheduling
             mode = 1;
+        } else if (strcmp(argv[1], "-rr") == 0) {
+            mode = 2;
+        } else {
+            i = 1;
         }
 
         for ( ; i < argc; i++) {
@@ -340,7 +342,10 @@ int main(int argc, char **argv) {
                 pcb = pcb->prev;
             }
 
-            pcb = mergeSort(pcb); //sort the linked list of process control block with the merge sort algorithm
+            if (mode < 2) {
+                //sort the linked list of process control block with the merge sort algorithm
+                pcb = mergeSort(pcb);
+            }
 
             // call the scheduleProcesses() function to schedule the processes
             scheduleProcesses(pcb, mode);
