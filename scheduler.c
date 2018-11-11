@@ -137,9 +137,10 @@ void scheduleProcesses(PCB *p_list, char mode) {
     ReadyQueue *queue = makeQueue(p_list);
 
     switch(mode) {
-        case 0: roundRobin(queue);
-            break;
+        case 0:
         case 1:
+            roundRobin(queue);
+            break;
         case 2: priorityBasedScheduling(queue);
             break;
         default: printf("Invalid mode!");
