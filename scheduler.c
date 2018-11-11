@@ -58,10 +58,15 @@ void priorityBasedScheduling(ReadyQueue *queue) {
     int status;
 
     while (queue) {
-        kill(queue->process->pid, SIGCONT);
+        int pid = queue->process->pid;
+
+        printf("\n%s (pid=%d)\n", queue->process->pathName, pid);
+
+        kill(pid, SIGCONT);
 
         // wait until the child process is terminated.
-        int ret = waitpid(queue->process->pid, &status, 0);
+        int ret = waitpid(pid, &status, 0);
+        printf("\nProcess %d finished..\n", pid);
 
         queue = queue->next;
     }
