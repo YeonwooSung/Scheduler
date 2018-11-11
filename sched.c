@@ -342,7 +342,7 @@ int main(int argc, char **argv) {
                 pcb = pcb->prev;
             }
 
-            if (mode < 2) {
+            if (mode != 1) {
                 //sort the linked list of process control block with the merge sort algorithm
                 pcb = mergeSort(pcb);
             }
