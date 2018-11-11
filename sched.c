@@ -315,9 +315,9 @@ int main(int argc, char **argv) {
         char mode = 0;
 
         if (strcmp(argv[1], "-p") == 0) { //check if the user wants the priority based scheduling
-            mode = 1;
-        } else if (strcmp(argv[1], "-rr") == 0) {
             mode = 2;
+        } else if (strcmp(argv[1], "-rr") == 0) {
+            mode = 1;
         } else {
             i = 1;
         }
