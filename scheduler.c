@@ -98,6 +98,7 @@ void roundRobin(ReadyQueue *queue) {
                 int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
 
                 if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
+                    printf("\tProcess %d finished\n", queue->process->pid);
                     queue->terminated = 1;
                 }
 
@@ -126,12 +127,17 @@ void multipleQueueScheduling(ReadyQueue *queue) {
  *
  * @param (p_list) the linked list of process control blocks
  */
-void scheduleProcesses(PCB *p_list) {
+void scheduleProcesses(PCB *p_list, char mode) {
     // allocate the memory to make the ready queue recursively
     ReadyQueue *queue = makeQueue(p_list);
 
-    //TODO use the proper scheduling function
-    roundRobin(queue);
+    switch(mode) {
+        case 0: roundRobin(queue);
+            break;
+        case 1: priorityBasedScheduling(queue);
+            break;
+        default: printf("Invalid mode!");
+    }
 
     freeQueue(queue); //free the allocated memory
 }
