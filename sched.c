@@ -314,12 +314,14 @@ int main(int argc, char **argv) {
         unsigned index = 0;
         char mode = 0;
 
+        //check if the user wants the priority based scheduling
         if (strcmp(argv[1], "-p") == 0) {
             i = 2;
             mode = 1;
         }
 
         for ( ; i < argc; i++) {
+            // read the config files and create processes
             pcb = createProcesses(argv[i], pcb, &index);
         }
 
