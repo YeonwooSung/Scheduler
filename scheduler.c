@@ -127,11 +127,13 @@ void roundRobin(ReadyQueue *queue) {
     }
 }
 
-void multipleQueueScheduling(ReadyQueue *queue) {
+FinishQueue *multipleQueueScheduling(ReadyQueue *queue) {
     FinishQueue *finished = NULL;
     IOQueue *io = NULL;
 
-    freeQueue(finished);
+    //TODO
+
+    return finished;
 }
 
 /**
@@ -150,12 +152,10 @@ void scheduleProcesses(PCB *p_list, char mode) {
             break;
         case 2: priorityBasedScheduling(queue);
             break;
-        case 3: multipleQueueScheduling(queue);
+        case 3: queue = multipleQueueScheduling(queue);
             break;
         default: printf("Invalid mode!");
     }
 
-    if (mode != 3) {
-        freeQueue(queue); //free the allocated memory
-    }
+    freeQueue(queue); //free the allocated memory
 }
