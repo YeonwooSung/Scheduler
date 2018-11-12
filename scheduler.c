@@ -6,6 +6,10 @@ typedef struct ready_queue {
     struct ready_queue *next;
 } ReadyQueue;
 
+typedef ReadyQueue IOQueue; // the queue that contains the processes that are waiting for the I/O job
+
+typedef ReadyQueue FinishQueue; // the queue that contains the finished processes
+
 /**
  * The aim of this function is to allocate the memory to make the ready queue.
  *
@@ -92,7 +96,7 @@ void roundRobin(ReadyQueue *queue) {
 
             if (queue->terminated == 0) { //to check if the process of the current node is terminated
                 pid = queue->process->pid;
-                printf("\n%s (pid=%d)\n", queue->process->pathName, pid);
+                printf("\nExecute %s (pid=%d)\n", queue->process->pathName, pid);
 
                 kill(pid, SIGCONT);
                 usleep(500000);
@@ -124,7 +128,10 @@ void roundRobin(ReadyQueue *queue) {
 }
 
 void multipleQueueScheduling(ReadyQueue *queue) {
-    //
+    FinishQueue *finished = NULL;
+    IOQueue *io = NULL;
+
+    freeQueue(finished);
 }
 
 /**
@@ -143,8 +150,12 @@ void scheduleProcesses(PCB *p_list, char mode) {
             break;
         case 2: priorityBasedScheduling(queue);
             break;
+        case 3: multipleQueueScheduling(queue);
+            break;
         default: printf("Invalid mode!");
     }
 
-    freeQueue(queue); //free the allocated memory
+    if (mode != 3) {
+        freeQueue(queue); //free the allocated memory
+    }
 }
