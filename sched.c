@@ -322,10 +322,8 @@ int main(int argc, char **argv) {
             i = 1;
         }
 
-        for ( ; i < argc; i++) {
-            // read the config files and create processes
-            pcb = createProcesses(argv[i], pcb, &index);
-        }
+        // read the config files and create processes
+        pcb = createProcesses(argv[i], pcb, &index);
 
         /*
          * If the process control list is null, that means that there are no process that the scheduler should manage.
