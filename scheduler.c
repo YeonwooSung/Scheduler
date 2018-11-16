@@ -137,9 +137,13 @@ FinishQueue *multipleQueueScheduling(ReadyQueue *queue) {
 }
 
 /**
- * This function
+ * This function calls the suitable scheduling function to schedule the processes.
  *
  * @param (p_list) the linked list of process control blocks
+ * @param (mode) 0 -> round robin scheduling (ordered by the priority)
+ *               1 -> round robin scheduling
+ *               2 -> priority based scheduling
+ *               3 -> multiple feedback queue scheduling
  */
 void scheduleProcesses(PCB *p_list, char mode) {
     // allocate the memory to make the ready queue recursively
