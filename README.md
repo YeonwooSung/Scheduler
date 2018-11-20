@@ -15,9 +15,11 @@ When you run the scheduler, you need to pass the file path name of the config fi
 
 Moreover, you could choose the scheduling algorithm to use.
 
-    1) round robin (index based): "./sched -rr chars.conf"
+    1) round robin scheduling: "./sched -rr chars.conf"
 
     2) priority based scheduling: "./sched -p chars.conf"
+
+As a default, the sched will use the round robin scheduling algorithm, but, the processes will be ordered by the priority of each process. So, if you use "-rr" option, the process queue will be ordered by the index of the processes (first come first enqueue -> the process that arrives first will be enqueued first), however, if you use the default option, then the process queue will be ordered by the priority of each process.
 
 ## Design & Implementation
 
