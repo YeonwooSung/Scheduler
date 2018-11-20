@@ -2,12 +2,24 @@
 
 The aim of this project is to implement a simple user space scheduler, which is implemented with C language.
 
+Target platform: Linux
+
 ## Usage
 
 Scheduler uses the Makefile to compile the executable file "sched".
 Thus, all you need to do for the compiling this project is just type "make".
 
-The sched accepts a single command line argument, which is the file path of the config file.
+When you run the scheduler, you need to pass the file path name of the config file, which contains the list of processes that should be scheduled, as a command line argument.
+
+    i.e. "./sched chars.conf"
+
+Moreover, you could choose the scheduling algorithm to use.
+
+    1) round robin (index based): "./sched -rr chars.conf"
+
+    2) priority based scheduling: "./sched -p chars.conf"
+
+## Design & Implementation
 
 
 ## Scheduling Algorithms
