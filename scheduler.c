@@ -6,7 +6,10 @@ typedef struct ready_queue {
     struct ready_queue *next;
 } ReadyQueue;
 
+//TODO IOQueue
 typedef ReadyQueue IOQueue; // the queue that contains the processes that are waiting for the I/O job
+typedef ReadyQueue HighLevelQueue; // the queue that contains the processes with high priority
+typedef ReadyQueue LowLevelQueue; // the queue that contains the processes with low priority
 
 typedef ReadyQueue FinishQueue; // the queue that contains the finished processes
 
@@ -140,31 +143,85 @@ void roundRobin(ReadyQueue *queue) {
  * @param (avgPriority) The average of the priority of all processes.
  * @return The finish queue that contains all finished processes.
  */
-FinishQueue *multipleQueueScheduling(ReadyQueue *queue, unsigned avgPriority) {
+FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) {
     FinishQueue *finished = NULL;
-    IOQueue *io = NULL;
+    IOQueue *io = NULL; //TODO
+    HighLevelQueue *high = NULL;
+    HighLevelQueue *tempH = NULL;
+    LowLevelQueue *low = NULL;
+    LowLevelQueue *tempL = NULL;
     int pid;
     char checker;
 
+    //TODO devide the ready queue to high level queue and low level queue
     while (queue) {
+        if (queue->process->priority < avgPriority) {
+            if (high) {
+                tempH = queue;
+                high = tempH;
+                queue = queue->next;
+                high->next = NULL;
+            } else {
+                high->next = queue;
+                high = high->next;
+                queue = queue->next;
+                high->next =  NULL;
+            }
+        } else {
+            if (low) {
+                tempL = queue;
+                low = tempL;
+                queue = queue->next;
+                low->next = NULL;
+            } else {
+                low->next = queue;
+                low = low->next;
+                queue = queue->next;
+                low->next = NULL;
+            }
+        }
+    }
+
+    while (high) {
         checker = 1; //initialise the value of the local variable checker
 
-        if (queue->terminated == 0) {
+        if (high->terminated == 0) {
             //TODO manage the queues.
-            pid = queue->process->pid;
-            printf("\nExecute %s (pid=%d)\n", queue->process->pathName, pid);
+            pid = high->process->pid;
+            printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
 
             kill(pid, SIGCONT);
             usleep(500000);
             kill(pid, SIGSTOP);
 
-            checkIfProcessTerminated(queue, pid); //check if the child process is terminated.
+            checkIfProcessTerminated(high, pid); //check if the child process is terminated.
         } else {
             //TODO move to the finish queue
         }
 
-        checker = checker & queue->terminated; //use the AND operator to check if all processes are terminated.
-        queue = queue->next;
+        checker = checker & high->terminated; //use the AND operator to check if all processes are terminated.
+        high = high->next;
+    }
+
+    while (low) {
+        checker = 1; //initialise the value of the local variable checker
+
+        if (low->terminated == 0) {
+            //TODO manage the queues.
+            pid = low->process->pid;
+            printf("\nExecute %s (pid=%d)\n", low->process->pathName, pid);
+
+            kill(pid, SIGCONT);
+            usleep(500000);
+            kill(pid, SIGSTOP);
+
+            checkIfProcessTerminated(low, pid); //check if the child process is terminated.
+        } else {
+            //TODO move to the finish queue
+        }
+
+        checker = checker & low->terminated; //use the AND operator to check if all processes are terminated.
+        low = low->next;
     }
 
     return finished;
@@ -191,7 +248,7 @@ void scheduleProcesses(PCB *p_list, char mode, unsigned avgPriority) {
             break;
         case 2: priorityBasedScheduling(queue);
             break;
-        case 3: queue = multipleQueueScheduling(queue, avgPriority);
+        case 3: queue = multiLevelQueueScheduling(queue, avgPriority);
             break;
         default: printf("Invalid mode!");
     }
