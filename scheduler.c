@@ -1,6 +1,6 @@
 #include "sched.h"
 
-typedef struct ready_queue {
+typedef struct ready_queue { //TODO time measurement
     char terminated;
     PCB *process;
     struct ready_queue *next;
@@ -231,7 +231,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     tempH = high->next;
                 }
 
-                //move to the finish queue -  move current to finish queue
+                //move the finished process to the finish queue
                 if (finished) {
                     finished->next = high;
                     finished = finished->next;
@@ -286,7 +286,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     tempL = low->next;
                 }
 
-                //move to the finish queue
+                //move the finished process to the finish queue
                 if (finished) {
                     finished->next = low;
                     finished = finished->next;
@@ -316,6 +316,8 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
             break;
         }
     }
+
+    finished = tempF;
 
     return finished;
 }
