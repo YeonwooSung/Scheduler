@@ -19,11 +19,11 @@ double calculateToSecond(struct timespec *begin, struct timespec *end) {
     // check if start nanosecond is greater than end nanosecond
     if (begin->tv_nsec > end->tv_nsec) {
         sec -= 1;
-        nanoSec += 1000000000;
+        nanoSec += 1000000000.0f;
     }
 
     // add the precomputed seconds and nanoseconds
-    return (double)sec + (double)(nanoSec / 1000000000);
+    return (double)sec + (double)(nanoSec / 1000000000.0f);
 }
 
 /**
