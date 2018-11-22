@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <string.h>
 
 typedef struct process_control_block {

@@ -3,6 +3,7 @@
 typedef struct ready_queue { //TODO time measurement
     char terminated;
     PCB *process;
+    double spentTime; //to calculate the burst time
     struct ready_queue *next;
 } ReadyQueue;
 
@@ -25,6 +26,8 @@ ReadyQueue *makeQueue(PCB *p_list) {
 
         queue->process = p_list;
         queue->terminated = 0;
+
+        queue->spentTime = 0;
 
         //call itself recursively to make the next node
         queue->next = makeQueue(p_list->next);
@@ -63,14 +66,23 @@ void priorityBasedScheduling(ReadyQueue *queue) {
     int status;
 
     while (queue) {
+        struct timespec begin, end;
         int pid = queue->process->pid;
 
         printf("\n%s (pid=%d)\n", queue->process->pathName, pid);
 
+        clock_gettime(CLOCK_REALTIME, &begin);
         kill(pid, SIGCONT);
 
         // wait until the child process is terminated.
         waitpid(pid, &status, 0);
+        clock_gettime(CLOCK_REALTIME, &end);
+
+        //calculate the toal spent time
+        double spentTime = ((end.tv_sec - begin.tv_sec) + (double)((end.tv_nsec - begin.tv_nsec) / 1000000000));
+
+        queue->spentTime += spentTime;
+
         printf("\nProcess %d finished..\n", pid);
 
         queue = queue->next;
@@ -113,12 +125,21 @@ void roundRobin(ReadyQueue *queue) {
 
         while (queue) {
             if (queue->terminated == 0) { //to check if the process of the current node is terminated
+                struct timespec begin, end;
                 pid = queue->process->pid;
                 printf("\nExecute %s (pid=%d)\n", queue->process->pathName, pid);
+
+                clock_gettime(CLOCK_REALTIME, &begin);
 
                 kill(pid, SIGCONT);
                 usleep(500000);
                 kill(pid, SIGSTOP);
+
+                clock_gettime(CLOCK_REALTIME, &end);
+
+                //calculate the total spent time
+                double spentTime = ((end.tv_sec - begin.tv_sec) + (double)((end.tv_nsec - begin.tv_nsec) / 1000000000));
+                queue->spentTime += spentTime;
 
                 checkIfProcessTerminated(queue, pid); //check if the child process is terminated.
             }
@@ -183,9 +204,11 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
     high = tempH; //reset the starting point of the high level queue after finishing the iteration
     low = tempL;  //reset the starting point of the low level queue after finishing the iteration
 
-    unsigned highLevelRunTime = 500000; //5 sec
-    unsigned lowLevelRunTime = 200000;  //2 sec
-    unsigned runTime = 100000;           //1 sec
+    unsigned highLevelRunTime = 800000; //5 sec
+    unsigned lowLevelRunTime = 500000;  //2 sec
+    unsigned runTime = 100000;          //1 sec
+
+    struct timespec begin, end;
 
     for (int count = 0; ; count++) {
         HighLevelQueue *beforeH = NULL;
@@ -208,18 +231,35 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                  * is extremely important. Thus, it should be scheduled by non-preemptive way.
                  */
                 if (high->process->priority < 2) {
-                    kill(pid, SIGCONT);
-                    int status;
+                    clock_gettime(CLOCK_REALTIME, &begin);
 
+                    kill(pid, SIGCONT);
+
+                    int status;
                     // wait until the child process is terminated.
                     int ret = waitpid(pid, &status, 0);
+
+                    clock_gettime(CLOCK_REALTIME, &end);
+
+                    //calculate the total spent time
+                    double spentTime = ((end.tv_sec - begin.tv_sec) + (double)((end.tv_nsec - begin.tv_nsec) / 1000000000));
+                    high->spentTime += spentTime;
+
                     printf("\n\tProcess %d finished\n", pid);
                 } else {
                     printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
 
+                    clock_gettime(CLOCK_REALTIME, &begin);
+
                     kill(pid, SIGCONT);
                     usleep(highLevelRunTime);
                     kill(pid, SIGSTOP);
+
+                    clock_gettime(CLOCK_REALTIME, &end);
+
+                    //calculate the total spent time
+                    double spentTime = ((end.tv_sec - begin.tv_sec) + (double)((end.tv_nsec - begin.tv_nsec) / 1000000000));
+                    high->spentTime += spentTime;
 
                     checkIfProcessTerminated(high, pid); //check if the child process is terminated.
                 }
@@ -259,7 +299,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     // for every 5 turn, increase the priority of the process.
                     low->process->priority += 1;
 
-                    /* TODO
+                    /*
                      * If the increased priority of this process is greater than average priority
                      * move the current process to the high level queue.
                      */
@@ -278,9 +318,17 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                 pid = low->process->pid;
                 printf("\nExecute %s (pid=%d)\n", low->process->pathName, pid);
 
+                clock_gettime(CLOCK_REALTIME, &begin);
+
                 kill(pid, SIGCONT);
                 usleep(lowLevelRunTime);
                 kill(pid, SIGSTOP);
+
+                clock_gettime(CLOCK_REALTIME, &end);
+
+                //calculate the total spent time
+                double spentTime = ((end.tv_sec - begin.tv_sec) + (double)((end.tv_nsec - begin.tv_nsec) / 1000000000));
+                low->spentTime += spentTime;
 
                 checkIfProcessTerminated(low, pid); //check if the child process is terminated.
 
@@ -329,6 +377,18 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
     return finished;
 }
 
+void printOutStatAndSpentTime(ReadyQueue *queue) {
+    printf("\n\nStatus of each process:\n");
+    while (queue) {
+        PCB *p = queue->process;
+        double spentTime = queue->spentTime;
+        printf("%s (pid=%d) (priority=%d): spent_time(%lf)\n", p->pathName, p->pid, p->priority, spentTime);
+
+        queue = queue->next;
+    }
+    printf("\n");
+}
+
 /**
  * This function calls the suitable scheduling function to schedule the processes.
  *
@@ -354,6 +414,9 @@ void scheduleProcesses(PCB *p_list, char mode, unsigned avgPriority) {
             break;
         default: printf("Invalid mode!");
     }
+
+    //print out the total spent time of all processes
+    printOutStatAndSpentTime(queue);
 
     freeQueue(queue); //free the allocated memory
 }
