@@ -93,7 +93,7 @@ void priorityBasedScheduling(ReadyQueue *queue) {
         clock_gettime(CLOCK_REALTIME, &end);
 
         //calculate the toal spent time
-        double spentTime = calculateToSeconds(&begin, &end);
+        double spentTime = calculateToSecond(&begin, &end);
 
         queue->spentTime += spentTime;
 
@@ -152,7 +152,7 @@ void roundRobin(ReadyQueue *queue) {
                 clock_gettime(CLOCK_REALTIME, &end);
 
                 //calculate the total spent time
-                double spentTime = calculateToSeconds(&begin, &end);
+                double spentTime = calculateToSecond(&begin, &end);
                 queue->spentTime += spentTime;
 
                 checkIfProcessTerminated(queue, pid); //check if the child process is terminated.
@@ -256,7 +256,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     clock_gettime(CLOCK_REALTIME, &end);
 
                     //calculate the total spent time
-                    double spentTime = calculateToSeconds(&begin, &end);
+                    double spentTime = calculateToSecond(&begin, &end);
                     high->spentTime += spentTime;
 
                     printf("\n\tProcess %d finished\n", pid);
@@ -272,7 +272,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     clock_gettime(CLOCK_REALTIME, &end);
 
                     //calculate the total spent time
-                    double spentTime = calculateToSeconds(&begin, &end);
+                    double spentTime = calculateToSecond(&begin, &end);
                     high->spentTime += spentTime;
 
                     checkIfProcessTerminated(high, pid); //check if the child process is terminated.
@@ -341,7 +341,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                 clock_gettime(CLOCK_REALTIME, &end);
 
                 //calculate the total spent time
-                double spentTime = calculateToSeconds(&begin, &end);
+                double spentTime = calculateToSecond(&begin, &end);
                 low->spentTime += spentTime;
 
                 checkIfProcessTerminated(low, pid); //check if the child process is terminated.
