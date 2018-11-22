@@ -12,6 +12,20 @@ typedef ReadyQueue LowLevelQueue; // the queue that contains the processes with 
 
 typedef ReadyQueue FinishQueue; // the queue that contains the finished processes
 
+double calculateToSecond(struct timespec *begin, struct timespec *end) {
+    long sec = end->tv_sec - begin->tv_sec;
+    long nanoSec = end->tv_nsec - begin->tv_nsec;
+
+    // check if start nanosecond is greater than end nanosecond
+    if (begin->tv_nsec > end->tv_nsec) {
+        sec -= 1;
+        nanoSec += 1000000000;
+    }
+
+    // add the precomputed seconds and nanoseconds
+    return (double)sec + (double)(nanoSec / 1000000000);
+}
+
 /**
  * The aim of this function is to allocate the memory to make the ready queue.
  *
