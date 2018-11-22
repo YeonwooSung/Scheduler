@@ -216,7 +216,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     tempH = high->next;
                 }
 
-                //TODO move to the finish queue -  move current to finish queue
+                //move to the finish queue -  move current to finish queue
                 if (finished) {
                     finished->next = high;
                     finished = finished->next;
@@ -241,7 +241,6 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
             checker = 1; //initialise the value of the local variable checker
 
             if (low->terminated == 0) {
-                //TODO manage the queues.
                 pid = low->process->pid;
                 printf("\nExecute %s (pid=%d)\n", low->process->pathName, pid);
 
@@ -259,7 +258,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     tempL = low->next;
                 }
 
-                //TODO move to the finish queue
+                //move to the finish queue
                 if (finished) {
                     finished->next = low;
                     finished = finished->next;
@@ -279,7 +278,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
 
         low = tempL; //reset the starting point of the low level queue after finishing the iteration
 
-        if (count > 5) { //TODO
+        if (count > 5) {
             highLevelRunTime += runTime;
             lowLevelRunTime += runTime;
             count -= 5;
