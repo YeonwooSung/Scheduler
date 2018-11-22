@@ -199,14 +199,32 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
             checker = 1; //initialise the value of the local variable checker
 
             if (high->terminated == 0) {
-                pid = high->process->pid;
-                printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
+                if (count > 5) {
+                    // for every 5 turn, increase the priority of the process.
+                    high->process->priority += 1;
+                }
 
-                kill(pid, SIGCONT);
-                usleep(highLevelRunTime);
-                kill(pid, SIGSTOP);
+                /*
+                 * If the priority of the process is less than 2 (i.e. 0 or 1) that means that this process
+                 * is extremely important. Thus, it should be scheduled by non-preemptive way.
+                 */
+                if (high->process->priority < 2) {
+                    kill(pid, SIGCONT);
+                    int status;
 
-                checkIfProcessTerminated(high, pid); //check if the child process is terminated.
+                    // wait until the child process is terminated.
+                    int ret = waitpid(pid, &status, 0);
+                    printf("\nProcess %d finished..\n", pid);
+                } else {
+                    pid = high->process->pid;
+                    printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
+
+                    kill(pid, SIGCONT);
+                    usleep(highLevelRunTime);
+                    kill(pid, SIGSTOP);
+
+                    checkIfProcessTerminated(high, pid); //check if the child process is terminated.
+                }
 
                 beforeH = high;
                 high = high->next;
@@ -241,6 +259,11 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
             checker = 1; //initialise the value of the local variable checker
 
             if (low->terminated == 0) {
+                if (count > 5) {
+                    // for every 5 turn, increase the priority of the process.
+                    high->process->priority += 1;
+                }
+
                 pid = low->process->pid;
                 printf("\nExecute %s (pid=%d)\n", low->process->pathName, pid);
 
