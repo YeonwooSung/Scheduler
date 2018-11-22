@@ -249,8 +249,6 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
             }
         }
 
-        high = tempH; //reset the starting point of the high level queue after finishing the iteration
-
         //iterate the low level queue
         while (low) {
             checker = 1; //initialise the value of the local variable checker
@@ -265,7 +263,14 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                      * move the current process to the high level queue.
                      */
                     if (low->process->priority < avgPriority) {
-                        //
+                        beforeL->next = low->next;
+
+                        high->next = low;
+                        low = low->next;
+                        high->next->next = NULL;
+                        high = high->next;
+
+                        continue;
                     }
                 }
 
@@ -304,6 +309,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
             }
         }
 
+        high = tempH; //reset the starting point of the high level queue after finishing the iteration
         low = tempL; //reset the starting point of the low level queue after finishing the iteration
 
         if (count > 5) {
