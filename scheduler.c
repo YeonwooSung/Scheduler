@@ -77,6 +77,24 @@ void priorityBasedScheduling(ReadyQueue *queue) {
 }
 
 /**
+ * This function checks if the child process is terminated by using the waitpid.
+ *
+ * @param (queue) The linked list for ready queue.
+ * @param (pid) The process id of the target process.
+ */
+void checkIfProcessTerminated(ReadyQueue *queue, int pid) {
+    int status;
+    // just simply check if the process with the given pid is terminated.
+    int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
+
+    if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
+        printf("\tProcess %d finished\n", queue->process->pid);
+        queue->terminated = 1;
+    }
+
+}
+
+/**
  * This function manages the process control blocks with the round robin scheduling algorithm.
  * Round Robin is the preemptive process scheduling algorithm. Each process is provided
  * a fix time to execute, it is called a quantum. Once a process is executed for a given time
@@ -101,14 +119,7 @@ void roundRobin(ReadyQueue *queue) {
                 usleep(500000);
                 kill(pid, SIGSTOP);
 
-                int status;
-                // just simply check if the process with the given pid is terminated.
-                int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
-
-                if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
-                    printf("\tProcess %d finished\n", queue->process->pid);
-                    queue->terminated = 1;
-                }
+                checkIfProcessTerminated(queue, pid); //check if the child process is terminated.
             }
             checker = checker & queue->terminated; //use the AND operator to check if all processes are terminated.
             queue = queue->next;
@@ -122,13 +133,38 @@ void roundRobin(ReadyQueue *queue) {
     }
 }
 
-FinishQueue *multipleQueueScheduling(ReadyQueue *queue) {
+/**
+ * The aim of this method is to manage the processes by using the multiple feedback queue algorithm.
+ *
+ * @param (queue) The ready queue.
+ * @param (avgPriority) The average of the priority of all processes.
+ * @return The finish queue that contains all finished processes.
+ */
+FinishQueue *multipleQueueScheduling(ReadyQueue *queue, unsigned avgPriority) {
     FinishQueue *finished = NULL;
     IOQueue *io = NULL;
+    int pid;
+    char checker;
 
-    //TODO
     while (queue) {
-        //
+        checker = 1; //initialise the value of the local variable checker
+
+        if (queue->terminated == 0) {
+            //TODO manage the queues.
+            pid = queue->process->pid;
+            printf("\nExecute %s (pid=%d)\n", queue->process->pathName, pid);
+
+            kill(pid, SIGCONT);
+            usleep(500000);
+            kill(pid, SIGSTOP);
+
+            checkIfProcessTerminated(queue, pid); //check if the child process is terminated.
+        } else {
+            //TODO move to the finish queue
+        }
+
+        checker = checker & queue->terminated; //use the AND operator to check if all processes are terminated.
+        queue = queue->next;
     }
 
     return finished;
@@ -155,7 +191,7 @@ void scheduleProcesses(PCB *p_list, char mode, unsigned avgPriority) {
             break;
         case 2: priorityBasedScheduling(queue);
             break;
-        case 3: queue = multipleQueueScheduling(queue);
+        case 3: queue = multipleQueueScheduling(queue, avgPriority);
             break;
         default: printf("Invalid mode!");
     }
