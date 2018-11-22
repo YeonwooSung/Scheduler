@@ -70,7 +70,7 @@ void priorityBasedScheduling(ReadyQueue *queue) {
         kill(pid, SIGCONT);
 
         // wait until the child process is terminated.
-        int ret = waitpid(pid, &status, 0);
+        waitpid(pid, &status, 0);
         printf("\nProcess %d finished..\n", pid);
 
         queue = queue->next;
@@ -201,6 +201,8 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                     high->process->priority += 1;
                 }
 
+                pid = high->process->pid;
+
                 /*
                  * If the priority of the process is less than 2 (i.e. 0 or 1) that means that this process
                  * is extremely important. Thus, it should be scheduled by non-preemptive way.
@@ -211,9 +213,8 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
 
                     // wait until the child process is terminated.
                     int ret = waitpid(pid, &status, 0);
-                    printf("\nProcess %d finished..\n", pid);
+                    printf("\n\tProcess %d finished\n", pid);
                 } else {
-                    pid = high->process->pid;
                     printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
 
                     kill(pid, SIGCONT);
