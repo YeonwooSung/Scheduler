@@ -153,10 +153,10 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
     int pid;
     char checker;
 
-    //TODO devide the ready queue to high level queue and low level queue
+    //devide the ready queue to high level queue and low level queue
     while (queue) {
-        if (queue->process->priority < avgPriority) {
-            if (high) {
+        if (queue->process->priority < avgPriority) { //compare the current process's priority with the average priority
+            if (high == NULL) {
                 tempH = queue;
                 high = tempH;
                 queue = queue->next;
@@ -168,7 +168,7 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                 high->next =  NULL;
             }
         } else {
-            if (low) {
+            if (low == NULL) {
                 tempL = queue;
                 low = tempL;
                 queue = queue->next;
@@ -182,46 +182,75 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
         }
     }
 
-    while (high) {
-        checker = 1; //initialise the value of the local variable checker
+    high = tempH; //reset the starting point of the high level queue after finishing the iteration
+    low = tempL;  //reset the starting point of the low level queue after finishing the iteration
 
-        if (high->terminated == 0) {
-            //TODO manage the queues.
-            pid = high->process->pid;
-            printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
+    for (;;) {
+        while (high) {
+            checker = 1; //initialise the value of the local variable checker
 
-            kill(pid, SIGCONT);
-            usleep(500000);
-            kill(pid, SIGSTOP);
+            if (high->terminated == 0) {
+                //TODO manage the queues.
+                pid = high->process->pid;
+                printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
 
-            checkIfProcessTerminated(high, pid); //check if the child process is terminated.
-        } else {
-            //TODO move to the finish queue
+                kill(pid, SIGCONT);
+                usleep(800000);
+                kill(pid, SIGSTOP);
+
+                checkIfProcessTerminated(high, pid); //check if the child process is terminated.
+            } else {
+                if (high == tempH) {
+                    //if the first node of the high level queue is finished, change the starting point of the high level queue
+                    tempH = high->next;
+                }
+
+                //TODO move to the finish queue
+                if (finished) {
+                    //
+                } else {
+                    finished = high;
+                }
+            }
+
+            checker = checker & high->terminated; //use the AND operator to check if all processes are terminated.
+            high = high->next;
         }
 
-        checker = checker & high->terminated; //use the AND operator to check if all processes are terminated.
-        high = high->next;
-    }
+        high = tempH; //reset the starting point of the high level queue after finishing the iteration
 
-    while (low) {
-        checker = 1; //initialise the value of the local variable checker
+        while (low) {
+            checker = 1; //initialise the value of the local variable checker
 
-        if (low->terminated == 0) {
-            //TODO manage the queues.
-            pid = low->process->pid;
-            printf("\nExecute %s (pid=%d)\n", low->process->pathName, pid);
+            if (low->terminated == 0) {
+                //TODO manage the queues.
+                pid = low->process->pid;
+                printf("\nExecute %s (pid=%d)\n", low->process->pathName, pid);
 
-            kill(pid, SIGCONT);
-            usleep(500000);
-            kill(pid, SIGSTOP);
+                kill(pid, SIGCONT);
+                usleep(300000);
+                kill(pid, SIGSTOP);
 
-            checkIfProcessTerminated(low, pid); //check if the child process is terminated.
-        } else {
-            //TODO move to the finish queue
+                checkIfProcessTerminated(low, pid); //check if the child process is terminated.
+            } else {
+                if (low == tempL) {
+                    //if the first node of the low level queue is finished, change the starting point of the low level queue
+                    tempL = low->next;
+                }
+
+                //TODO move to the finish queue
+                if (finished) {
+                    //
+                } else {
+                    finished = low;
+                }
+            }
+
+            checker = checker & low->terminated; //use the AND operator to check if all processes are terminated.
+            low = low->next;
         }
 
-        checker = checker & low->terminated; //use the AND operator to check if all processes are terminated.
-        low = low->next;
+        low = tempL; //reset the starting point of the low level queue after finishing the iteration
     }
 
     return finished;
