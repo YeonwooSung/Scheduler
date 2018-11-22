@@ -128,19 +128,7 @@ FinishQueue *multipleQueueScheduling(ReadyQueue *queue) {
 
     //TODO
     while (queue) {
-        int pid = queue->process->pid;
-        char buf[1000];
-        snprintf(buf, 100, "/proc/%d/status", pid);
-        FILE *fp = fopen(buf, "r");
-        char line[1024];
-        char tag[100];
-        char name[100];
-
-        while (fgets(line, 1024, fp) != NULL) {
-            sscanf(line, "%s %s", tag, name);
-            printf("[%s] [%s]\n", tag, name);
-        }
-        queue = queue->next;
+        //
     }
 
     return finished;
@@ -154,8 +142,9 @@ FinishQueue *multipleQueueScheduling(ReadyQueue *queue) {
  *               1 -> round robin scheduling
  *               2 -> priority based scheduling
  *               3 -> multiple feedback queue scheduling
+ * @param (avgPriority) The average priority of all processes
  */
-void scheduleProcesses(PCB *p_list, char mode) {
+void scheduleProcesses(PCB *p_list, char mode, unsigned avgPriority) {
     // allocate the memory to make the ready queue recursively
     ReadyQueue *queue = makeQueue(p_list);
 

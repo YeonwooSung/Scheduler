@@ -20,6 +20,6 @@ typedef struct process_control_block {
     struct process_control_block *next;
 } PCB;
 
-void scheduleProcesses(PCB *p_list, char mode);
+void scheduleProcesses(PCB *p_list, char mode, unsigned int avgPriority);
 
 #endif

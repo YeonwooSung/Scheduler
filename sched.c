@@ -188,9 +188,10 @@ void freeStrings(char **strArr, size_t counter) {
  * @param (config_file) The file name of the config file
  * @param (plist) The pointer that points to the linked list of the process control block.
  * @param (index) The pointer that points to the index of the process.
+ * @param (totalPriority) The sum of all processes' priorities to calculate the average of the priorities.
  * @return The pointer that points to the last process control block
  */
-PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
+PCB *createProcesses(char *config_file, PCB *plist, unsigned *index, unsigned *totalPriority) {
     FILE *fp = fopen(config_file, "r");
     char *line = NULL;
 
@@ -232,7 +233,7 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
 
         if (pid < 0) {
             fprintf(stderr, "Failed to execute the process %s\n", strArr[1]);
-        } else if (pid > 0) {
+        } else if (pid > 0) { //parent process
 
             kill(pid, SIGSTOP); //send the STOP signal to the corresponding process
 
@@ -249,6 +250,8 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             // set the file path name of the process
             newProcess->pathName = strArr[1];
             newProcess->priority = atoi(strArr[0]);
+
+            *totalPriority += newProcess->priority; //add the current process's priority to totalPriority
 
             // set the index of the process
             newProcess->index = *index;
@@ -273,14 +276,14 @@ PCB *createProcesses(char *config_file, PCB *plist, unsigned *index) {
             temp += 1;
             counting += 1;
         }
-        free(argv);
+        free(argv); //free the allocated memory
 
         freeStrings(strArr, counter); //free the splited strings (except the file path name)
         free(strArr);
     }
 
-    fclose(fp);
-    return plist;
+    fclose(fp); //close the opened file descriptor
+    return plist; //return the pointer of the linked list of the process control blocks.
 }
 
 /**
@@ -324,8 +327,10 @@ int main(int argc, char **argv) {
             i = 1;
         }
 
-        // read the config files and create processes
-        pcb = createProcesses(argv[i], pcb, &index);
+        unsigned avgPriority = 0;
+
+        // read the config file and create processes
+        pcb = createProcesses(argv[i], pcb, &index, &avgPriority);
 
         /*
          * If the process control list is null, that means that there are no process that the scheduler should manage.
@@ -335,25 +340,23 @@ int main(int argc, char **argv) {
             exit(0);
         }
 
-        /* This part will only be run by the parent process. */
-        if (pcb->pid > 0) {
-
-            while (pcb->prev) { // use the while loop to find the head node of the linked list of process control blocks.
-                pcb = pcb->prev;
-            }
-
-            if (mode != 1) {
-                //sort the linked list of process control block with the merge sort algorithm
-                pcb = mergeSort(pcb);
-            }
-
-            // call the scheduleProcesses() function to schedule the processes
-            scheduleProcesses(pcb, mode);
-
-            freeList(pcb); //free the dynamically allocated memory
-
-            printf("\n\nFinishing.....................\n");
+        while (pcb->prev) { // use the while loop to find the head node of the linked list of process control blocks.
+            pcb = pcb->prev; //TODO
         }
+
+        if (mode != 1) {
+            //sort the linked list of process control block with the merge sort algorithm
+            pcb = mergeSort(pcb);
+
+            avgPriority /= index; //calculate the average priority
+        }
+
+        // call the scheduleProcesses() function to schedule the processes
+        scheduleProcesses(pcb, mode, avgPriority);
+
+        freeList(pcb); //free the dynamically allocated memory
+
+        printf("\n\nFinishing.....................\n");
     }
 
     return 1;
