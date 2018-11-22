@@ -93,7 +93,6 @@ void roundRobin(ReadyQueue *queue) {
         checker = 1; //initialise the value of the local variable checker
 
         while (queue) {
-
             if (queue->terminated == 0) { //to check if the process of the current node is terminated
                 pid = queue->process->pid;
                 printf("\nExecute %s (pid=%d)\n", queue->process->pathName, pid);
@@ -110,11 +109,8 @@ void roundRobin(ReadyQueue *queue) {
                     printf("\tProcess %d finished\n", queue->process->pid);
                     queue->terminated = 1;
                 }
-
             }
-
             checker = checker & queue->terminated; //use the AND operator to check if all processes are terminated.
-
             queue = queue->next;
         }
 
@@ -122,7 +118,6 @@ void roundRobin(ReadyQueue *queue) {
         if (checker) {
             break; // if all processes are terminated, break the endless for loop
         }
-
         queue = temp; //reset the queue pointer to the first node.
     }
 }
@@ -132,6 +127,21 @@ FinishQueue *multipleQueueScheduling(ReadyQueue *queue) {
     IOQueue *io = NULL;
 
     //TODO
+    while (queue) {
+        int pid = queue->process->pid;
+        char buf[1000];
+        snprintf(buf, 100, "/proc/%d/status", pid);
+        FILE *fp = fopen(buf, "r");
+        char line[1024];
+        char tag[100];
+        char name[100];
+
+        while (fgets(line, 1024, fp) != NULL) {
+            sscanf(line, "%s %s", tag, name);
+            printf("[%s] [%s]\n", tag, name);
+        }
+        queue = queue->next;
+    }
 
     return finished;
 }
