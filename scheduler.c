@@ -6,8 +6,6 @@ typedef struct ready_queue {
     struct ready_queue *next;
 } ReadyQueue;
 
-//TODO IOQueue
-typedef ReadyQueue IOQueue; // the queue that contains the processes that are waiting for the I/O job
 typedef ReadyQueue HighLevelQueue; // the queue that contains the processes with high priority
 typedef ReadyQueue LowLevelQueue; // the queue that contains the processes with low priority
 
@@ -146,7 +144,6 @@ void roundRobin(ReadyQueue *queue) {
 FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) {
     FinishQueue *finished = NULL;
     FinishQueue *tempF = NULL;
-    IOQueue *io = NULL; //TODO
     HighLevelQueue *high = NULL;
     HighLevelQueue *tempH = NULL;
     LowLevelQueue *low = NULL;
@@ -186,9 +183,9 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
     high = tempH; //reset the starting point of the high level queue after finishing the iteration
     low = tempL;  //reset the starting point of the low level queue after finishing the iteration
 
-    unsigned highLevelRunTime = 800000; //8 sec
-    unsigned lowLevelRunTime = 300000;  //3 sec
-    unsigned runTime = 50000;           //0.5 sec
+    unsigned highLevelRunTime = 500000; //5 sec
+    unsigned lowLevelRunTime = 200000;  //2 sec
+    unsigned runTime = 100000;           //1 sec
 
     for (int count = 0; ; count++) {
         HighLevelQueue *beforeH = NULL;
@@ -261,7 +258,15 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
             if (low->terminated == 0) {
                 if (count > 5) {
                     // for every 5 turn, increase the priority of the process.
-                    high->process->priority += 1;
+                    low->process->priority += 1;
+
+                    /* TODO
+                     * If the increased priority of this process is greater than average priority
+                     * move the current process to the high level queue.
+                     */
+                    if (low->process->priority < avgPriority) {
+                        //
+                    }
                 }
 
                 pid = low->process->pid;
