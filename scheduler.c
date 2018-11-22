@@ -145,6 +145,7 @@ void roundRobin(ReadyQueue *queue) {
  */
 FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) {
     FinishQueue *finished = NULL;
+    FinishQueue *tempF = NULL;
     IOQueue *io = NULL; //TODO
     HighLevelQueue *high = NULL;
     HighLevelQueue *tempH = NULL;
@@ -185,40 +186,57 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
     high = tempH; //reset the starting point of the high level queue after finishing the iteration
     low = tempL;  //reset the starting point of the low level queue after finishing the iteration
 
-    for (;;) {
+    unsigned highLevelRunTime = 800000; //8 sec
+    unsigned lowLevelRunTime = 300000;  //3 sec
+    unsigned runTime = 50000;           //0.5 sec
+
+    for (int count = 0; ; count++) {
+        HighLevelQueue *beforeH = NULL;
+        LowLevelQueue *beforeL = NULL;
+
+        //iterate the high level queue
         while (high) {
             checker = 1; //initialise the value of the local variable checker
 
             if (high->terminated == 0) {
-                //TODO manage the queues.
                 pid = high->process->pid;
                 printf("\nExecute %s (pid=%d)\n", high->process->pathName, pid);
 
                 kill(pid, SIGCONT);
-                usleep(800000);
+                usleep(highLevelRunTime);
                 kill(pid, SIGSTOP);
 
                 checkIfProcessTerminated(high, pid); //check if the child process is terminated.
+
+                beforeH = high;
+                high = high->next;
             } else {
                 if (high == tempH) {
                     //if the first node of the high level queue is finished, change the starting point of the high level queue
                     tempH = high->next;
                 }
 
-                //TODO move to the finish queue
+                //TODO move to the finish queue -  move current to finish queue
                 if (finished) {
-                    //
+                    finished->next = high;
+                    finished = finished->next;
                 } else {
                     finished = high;
+                    tempF = finished;
                 }
-            }
 
-            checker = checker & high->terminated; //use the AND operator to check if all processes are terminated.
-            high = high->next;
+                if (beforeH) {
+                    beforeH->next = high->next; //link the previous node and next node
+                }
+
+                high = high->next;
+                finished->next = NULL;
+            }
         }
 
         high = tempH; //reset the starting point of the high level queue after finishing the iteration
 
+        //iterate the low level queue
         while (low) {
             checker = 1; //initialise the value of the local variable checker
 
@@ -228,10 +246,13 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                 printf("\nExecute %s (pid=%d)\n", low->process->pathName, pid);
 
                 kill(pid, SIGCONT);
-                usleep(300000);
+                usleep(lowLevelRunTime);
                 kill(pid, SIGSTOP);
 
                 checkIfProcessTerminated(low, pid); //check if the child process is terminated.
+
+                beforeL = low;
+                low = low->next;
             } else {
                 if (low == tempL) {
                     //if the first node of the low level queue is finished, change the starting point of the low level queue
@@ -240,17 +261,33 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
 
                 //TODO move to the finish queue
                 if (finished) {
-                    //
+                    finished->next = low;
+                    finished = finished->next;
                 } else {
                     finished = low;
+                    tempF = finished;
                 }
-            }
 
-            checker = checker & low->terminated; //use the AND operator to check if all processes are terminated.
-            low = low->next;
+                if (beforeL) {
+                    beforeL->next = low->next; //link the previous node and next node
+                }
+
+                low = low->next;
+                finished->next = NULL;
+            }
         }
 
         low = tempL; //reset the starting point of the low level queue after finishing the iteration
+
+        if (count > 5) { //TODO
+            highLevelRunTime += runTime;
+            lowLevelRunTime += runTime;
+            count -= 5;
+        }
+
+        if (high == NULL && low == NULL) { //if both high level queue and low level queue are empty, break the endless loop
+            break;
+        }
     }
 
     return finished;
