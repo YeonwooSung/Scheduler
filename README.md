@@ -19,7 +19,7 @@ Moreover, you could choose the scheduling algorithm to use.
 
     2) priority based scheduling: "./sched -p chars.conf"
 
-As a default, the sched will use the round robin scheduling algorithm, but, the processes will be ordered by the priority of each process. So, if you use "-rr" option, the process queue will be ordered by the index of the processes (first come first enqueue -> the process that arrives first will be enqueued first), however, if you use the default option, then the process queue will be ordered by the priority of each process.
+As a default (if there is no command line argument for scheduling algorithm), the scheduler will use the round robin scheduling algorithm, but in this case, the processes will be ordered by the priority of each process. So, if you use "-rr" option, the process queue will be ordered by the index of the processes (first come first enqueue -> the process that arrives first will be enqueued first), however, if you use the default option, then the process queue will be ordered by the priority of each process.
 
 ## Design & Implementation
 
