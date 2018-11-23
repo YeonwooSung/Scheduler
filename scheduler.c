@@ -115,7 +115,6 @@ void checkIfProcessTerminated(ReadyQueue *queue, int pid) {
     int ret = waitpid(pid, &status, WNOHANG); // use WNOHANG option not to wait.
 
     if (ret != 0) { //if the given process is terminated, then the waitpid returns the pid.
-        printf("\tProcess %d finished\n", queue->process->pid);
         queue->terminated = 1;
     }
 
