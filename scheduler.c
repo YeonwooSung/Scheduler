@@ -218,9 +218,9 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
     high = tempH; //reset the starting point of the high level queue after finishing the iteration
     low = tempL;  //reset the starting point of the low level queue after finishing the iteration
 
-    unsigned highLevelRunTime = 800000; //5 sec
-    unsigned lowLevelRunTime = 500000;  //2 sec
-    unsigned runTime = 100000;          //1 sec
+    unsigned highLevelRunTime = 800000;
+    unsigned lowLevelRunTime = 500000;
+    unsigned runTime = 100000;
 
     struct timespec begin, end;
 
