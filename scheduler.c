@@ -234,8 +234,8 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
 
             if (high->terminated == 0) {
                 if (count > 5) {
-                    // for every 5 turn, increase the priority of the process.
-                    high->process->priority += 1;
+                    // for every 5 turn, decrease the priority of the process.
+                    high->process->priority -= 1;
                 }
 
                 pid = high->process->pid;
