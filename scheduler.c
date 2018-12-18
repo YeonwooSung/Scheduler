@@ -317,11 +317,14 @@ FinishQueue *multiLevelQueueScheduling(ReadyQueue *queue, unsigned avgPriority) 
                      * move the current process to the high level queue.
                      */
                     if (low->process->priority < avgPriority) {
-                        beforeL->next = low->next;
 
-                        high->next = low;
+                        if (beforeL) {
+                            beforeL->next = low->next;
+                        }
+
+                        high = low;
                         low = low->next;
-                        high->next->next = NULL;
+                        high->next = NULL;
                         high = high->next;
 
                         continue;
